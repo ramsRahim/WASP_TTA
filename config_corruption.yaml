@@ -1,0 +1,33 @@
+system:
+  device: "cuda"
+  seed: 42
+
+data:
+  img_size: 224
+  resize: 256
+  batch_size: 64
+  num_workers: 4
+  manifest_path: "./checkpoints/split_manifest.json"
+  ckpt_path: "./checkpoints/mobilenetv3_best.pt"
+  # Corruption settings
+  corruption_type: "gaussian_noise"  # null for no corruption
+  corruption_severity: 3  # 1-5
+
+tta:
+  alpha: 1.0
+  beta: 8.0
+  gamma: 6.0
+  temperature: 1.0
+  tau_pos: 0.80
+  tau_ref: 0.75
+  tau_neg: 0.20
+  top_neg: 3
+  pos_cache_size: 128
+  neg_cache_size: 64
+  sim_aggregate: "topk_mean"
+  topk: 5
+  second_pass: true
+  warmup_enabled: true
+  warmup_samples_per_class: 10
+  warmup_tau_pos: 0.90
+  warmup_tau_neg: 0.15

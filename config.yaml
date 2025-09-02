@@ -1,0 +1,30 @@
+data:
+  data_dir: ./unlabeled_images
+  pattern: null
+  batch_size: 64
+  num_workers: 4
+  resize: 256
+  crop: 224
+  eval_if_labels: false
+system:
+  device: ""
+  fp16: false
+  seed: 42
+model:
+  arch: mobilenet_v3_large
+tta:
+  alpha: 1.0
+  beta: 8.0
+  gamma: 6.0
+  temperature: 1.0
+  tau_pos: 0.80
+  tau_ref: 0.75
+  tau_neg: 0.20
+  top_neg: 3
+  pos_cache_size: 128
+  neg_cache_size: 64
+  sim_aggregate: topk_mean
+  topk: 5
+  second_pass: true
+output:
+  save_csv: predictions.csv
