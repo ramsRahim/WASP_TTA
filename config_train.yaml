@@ -21,3 +21,27 @@ train:
   warmup_epochs: 1
   ckpt_dir: ./checkpoints
   ckpt_name: mobilenetv3_best.pt
+
+# Add to config_train.yaml under corruption_finetune:
+corruption_finetune:
+  enabled: true
+  corruption_prob: 0.7
+  severity_range: [1, 4]
+  epochs: 8
+  lr: 1e-4
+  weight_decay: 1e-4
+  corruption_types:
+    - "gaussian_noise"
+    - "motion_blur"
+    - "brightness"
+    - "contrast"
+  clean_prob: 0.3
+  ckpt_name: "mobilenetv3_corruption_finetuned.pt"
+  warmup_epochs: 1
+  
+  # Contrastive learning parameters
+  contrastive_enabled: true
+  contrastive_temperature: 0.07
+  contrastive_weight: 0.5
+  feature_dim: 128
+  contrastive_pairs_per_batch: 0.8

@@ -5516,5 +5516,8 @@
     ]
   },
   "best_checkpoint": "./checkpoints/mobilenetv3_best.pt",
-  "best_val_top1": 89.21212110374913
+  "corruption_checkpoint": "./checkpoints/mobilenetv3_corruption_finetuned.pt",
+  "corruption_finetuned": true,
+  "contrastive_enabled": true,
+  "best_corruption_val_acc": 89.93939383102186
 }
