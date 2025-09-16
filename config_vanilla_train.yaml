@@ -1,0 +1,28 @@
+data:
+  root: /home/rahim/exp/Data/Agriculture_pest_dataset
+  img_size: 224
+  resize: 256
+  train_frac: 0.70
+  val_frac: 0.15
+  test_frac: 0.15
+  batch_size: 32
+  num_workers: 4
+  balance_seed: 42
+
+system:
+  device: "cuda"
+  seed: 42
+  fp16: true
+
+train:
+  epochs: 10
+  lr: 0.001  # Use numeric value instead of scientific notation
+  weight_decay: 0.0001
+  freeze_backbone: false
+  label_smoothing: 0.1
+  ckpt_dir: "./checkpoints"
+  ckpt_name: "mobilenetv3_13classes_vanilla.pt"
+  warmup_epochs: 2
+
+corruption_finetune:
+  enabled: false  # Disable contrastive learning for vanilla model

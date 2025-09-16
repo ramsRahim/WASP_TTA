@@ -7,7 +7,7 @@ system:
 
 data:
   manifest_path: "./checkpoints/split_manifest.json"
-  ckpt_path: "./checkpoints/mobilenetv3_best.pt"
+  ckpt_path: "./checkpoints/mobilenetv3_13classes_best_contrastive.pt"
   img_size: 224
   resize: 256
   batch_size: 64
@@ -15,19 +15,16 @@ data:
 
 enhanced_tta:
   # Cache configuration
-  pos_cache_size: 50
-  neg_cache_size: 30
+  pos_cache_size: 100
+  neg_cache_size: 50
   
-  # Feature fusion strategy: concat, attention, adaptive_attention, weighted_sum
+  # Feature fusion strategy - using simple concat only
   fusion_strategy: "concat"
-  
-  # Layer names for feature extraction (auto-detected if not specified)
-  # layer_names: ["features.3", "features.6", "features.12", "features.16"]
   
   # TTA thresholds
   tau_ref: 0.6      # Confidence threshold for applying TTA
-  tau_pos: 0.8      # Confidence threshold for adding positive samples
-  tau_neg: 0.2      # Confidence threshold for adding negative samples
+  tau_pos: 0.7      # Confidence threshold for adding positive samples
+  tau_neg: 0.25      # Confidence threshold for adding negative samples
   
   # Warmup configuration
   warmup_tau_pos: 0.8   # Higher threshold for warmup positive samples
@@ -43,109 +40,6 @@ enhanced_tta:
   
   # Batch size for warmup (smaller than main batch size)
   batch_size: 32
-  
-  # Layer weights for weighted_sum fusion (if used)
-  layer_weights: [1.0, 1.2, 1.5, 1.8]
-  
-  # Adaptive parameters per corruption type and severity
-  adaptive_params:
-    gaussian_noise:
-      severity_1:
-        tau_ref: 0.5
-        beta: 3.5
-        gamma: 2.5
-        quality_threshold: 0.03
-      severity_2:
-        tau_ref: 0.4
-        beta: 4.0
-        gamma: 3.0
-        quality_threshold: 0.02
-      severity_3:
-        tau_ref: 0.3
-        beta: 4.5
-        gamma: 3.5
-        quality_threshold: 0.02
-      severity_4:
-        tau_ref: 0.25
-        beta: 5.0
-        gamma: 4.0
-        quality_threshold: 0.01
-      severity_5:
-        tau_ref: 0.2
-        beta: 5.5
-        gamma: 4.5
-        quality_threshold: 0.01
-    
-    motion_blur:
-      severity_1:
-        tau_ref: 0.55
-        beta: 3.2
-        gamma: 2.2
-        fusion_strategy: "adaptive_attention"
-      severity_2:
-        tau_ref: 0.45
-        beta: 3.8
-        gamma: 2.8
-        fusion_strategy: "adaptive_attention"
-      severity_3:
-        tau_ref: 0.35
-        beta: 4.2
-        gamma: 3.2
-        fusion_strategy: "adaptive_attention"
-      severity_4:
-        tau_ref: 0.3
-        beta: 4.8
-        gamma: 3.8
-        fusion_strategy: "adaptive_attention"
-      severity_5:
-        tau_ref: 0.25
-        beta: 5.2
-        gamma: 4.2
-        fusion_strategy: "adaptive_attention"
-    
-    brightness:
-      severity_1:
-        tau_ref: 0.65
-        beta: 2.8
-        gamma: 1.8
-      severity_2:
-        tau_ref: 0.55
-        beta: 3.2
-        gamma: 2.2
-      severity_3:
-        tau_ref: 0.45
-        beta: 3.8
-        gamma: 2.8
-      severity_4:
-        tau_ref: 0.35
-        beta: 4.2
-        gamma: 3.2
-      severity_5:
-        tau_ref: 0.3
-        beta: 4.8
-        gamma: 3.8
-    
-    contrast:
-      severity_1:
-        tau_ref: 0.65
-        beta: 2.8
-        gamma: 1.8
-      severity_2:
-        tau_ref: 0.55
-        beta: 3.2
-        gamma: 2.2
-      severity_3:
-        tau_ref: 0.45
-        beta: 3.8
-        gamma: 2.8
-      severity_4:
-        tau_ref: 0.35
-        beta: 4.2
-        gamma: 3.2
-      severity_5:
-        tau_ref: 0.3
-        beta: 4.8
-        gamma: 3.8
 
 evaluation:
   # Corruptions to test

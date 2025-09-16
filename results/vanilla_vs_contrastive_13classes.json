@@ -1,0 +1,115 @@
+{
+  "classes": [
+    "ants",
+    "bees",
+    "beetle",
+    "catterpillar",
+    "earthworms",
+    "earwig",
+    "grasshopper",
+    "moth",
+    "slug",
+    "snail",
+    "spotted_lanternfly",
+    "wasp",
+    "weevil"
+  ],
+  "num_classes": 13,
+  "test_samples": 900,
+  "results": {
+    "clean": {
+      "severity_0": {
+        "contrastive": 89.0,
+        "vanilla": 86.77777777777777
+      }
+    },
+    "gaussian_noise": {
+      "severity_1": {
+        "contrastive": 87.55555555555556,
+        "vanilla": 83.0
+      },
+      "severity_2": {
+        "contrastive": 86.77777777777777,
+        "vanilla": 79.66666666666667
+      },
+      "severity_3": {
+        "contrastive": 85.33333333333333,
+        "vanilla": 74.11111111111111
+      },
+      "severity_4": {
+        "contrastive": 84.44444444444444,
+        "vanilla": 68.22222222222223
+      },
+      "severity_5": {
+        "contrastive": 83.55555555555556,
+        "vanilla": 59.0
+      }
+    },
+    "motion_blur": {
+      "severity_1": {
+        "contrastive": 88.55555555555556,
+        "vanilla": 85.77777777777777
+      },
+      "severity_2": {
+        "contrastive": 86.66666666666667,
+        "vanilla": 82.66666666666667
+      },
+      "severity_3": {
+        "contrastive": 83.88888888888889,
+        "vanilla": 76.0
+      },
+      "severity_4": {
+        "contrastive": 80.66666666666667,
+        "vanilla": 63.0
+      },
+      "severity_5": {
+        "contrastive": 79.0,
+        "vanilla": 51.333333333333336
+      }
+    },
+    "brightness": {
+      "severity_1": {
+        "contrastive": 88.44444444444444,
+        "vanilla": 86.77777777777777
+      },
+      "severity_2": {
+        "contrastive": 88.55555555555556,
+        "vanilla": 87.22222222222223
+      },
+      "severity_3": {
+        "contrastive": 89.11111111111111,
+        "vanilla": 86.55555555555556
+      },
+      "severity_4": {
+        "contrastive": 88.33333333333333,
+        "vanilla": 85.55555555555556
+      },
+      "severity_5": {
+        "contrastive": 88.33333333333333,
+        "vanilla": 83.55555555555556
+      }
+    },
+    "contrast": {
+      "severity_1": {
+        "contrastive": 88.0,
+        "vanilla": 83.33333333333333
+      },
+      "severity_2": {
+        "contrastive": 89.0,
+        "vanilla": 85.66666666666667
+      },
+      "severity_3": {
+        "contrastive": 88.77777777777777,
+        "vanilla": 87.0
+      },
+      "severity_4": {
+        "contrastive": 87.66666666666667,
+        "vanilla": 84.88888888888889
+      },
+      "severity_5": {
+        "contrastive": 86.11111111111111,
+        "vanilla": 83.0
+      }
+    }
+  }
+}

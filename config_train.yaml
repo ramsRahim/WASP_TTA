@@ -1,47 +1,65 @@
-data:
-  root: /home/rahim/exp/Data/Agriculture_pest_dataset
-  img_size: 224
-  resize: 256
-  train_frac: 0.70
-  val_frac: 0.15
-  test_frac: 0.15
-  batch_size: 64
-  num_workers: 4
-  balance_seed: 42
+# Enhanced training configuration with weather/lighting corruptions
 system:
   device: "cuda"
   seed: 42
   fp16: false
+
+data:
+  root: "/home/rahim/exp/Data/Agriculture_pest_dataset"
+  img_size: 224
+  resize: 256
+  batch_size: 32  # Reduced for memory efficiency with enhanced model
+  num_workers: 4
+  train_frac: 0.7
+  val_frac: 0.15
+  test_frac: 0.15
+  balance_seed: 42
+
 train:
   epochs: 10
-  lr: 0.0005
-  weight_decay: 0.0001
+  lr: 3e-4
+  weight_decay: 1e-4
   freeze_backbone: true
-  label_smoothing: 0.0
-  warmup_epochs: 1
-  ckpt_dir: ./checkpoints
-  ckpt_name: mobilenetv3_best.pt
+  label_smoothing: 0.1
+  dropout_rate: 0.3  # Enhanced regularization
+  ckpt_dir: "./checkpoints"
+  ckpt_name: "mobilenetv3_13classes_enhanced.pt"
 
-# Add to config_train.yaml under corruption_finetune:
 corruption_finetune:
   enabled: true
-  corruption_prob: 0.7
-  severity_range: [1, 4]
-  epochs: 8
+  contrastive_enabled: true
+  epochs: 15
   lr: 1e-4
-  weight_decay: 1e-4
+  weight_decay: 2e-4
+  feature_dim: 256
+  
+  # Enhanced corruption types
   corruption_types:
     - "gaussian_noise"
-    - "motion_blur"
+    - "motion_blur" 
     - "brightness"
     - "contrast"
-  clean_prob: 0.3
-  ckpt_name: "mobilenetv3_corruption_finetuned.pt"
-  warmup_epochs: 1
+    - "rain"
+    - "snow" 
+    - "frost"
+    - "fog"
+    - "low_light"
+    - "high_light"
+    - "shadow"
+    - "glare"
+    - "haze"
+    - "mist"
   
-  # Contrastive learning parameters
-  contrastive_enabled: true
-  contrastive_temperature: 0.07
-  contrastive_weight: 0.5
-  feature_dim: 128
+  corruption_prob: 0.8
+  severity_range: [1, 5]
+  
+  # Enhanced contrastive learning
+  contrastive_weight: 0.6
+  contrastive_temperature: 0.05
   contrastive_pairs_per_batch: 0.8
+  
+  # Regularization
+  use_mixup: true
+  mixup_alpha: 0.4
+  
+  ckpt_name: "mobilenetv3_13classes_enhanced_weather_contrastive.pt"

@@ -1,0 +1,1636 @@
+Starting Enhanced Multi-Scale TTA Evaluation
+Config: multiScaleFeature/config_enhanced_eval.yaml
+Device: cuda
+Loading model and datasets...
+Loading corruption fine-tuned model: ./checkpoints/mobilenetv3_corruption_finetuned.pt
+Model has contrastive learning components
+Model initialized with backbone feature dim: 960
+Model loaded successfully with 12 classes
+
+============================================================
+Testing gaussian_noise at severity 1
+============================================================
+Created corrupted dataset with 822 samples
+Corruption: gaussian_noise, Severity: 1
+Detected contrastive model with backbone
+Available feature layers: 17
+Auto-detected layer names: ['backbone.features.3', 'backbone.features.6', 'backbone.features.12', 'backbone.features.16']
+Successfully registered 4 hooks out of 4 requested
+Determined feature dimensions: {'backbone.features.3': 24, 'backbone.features.6': 40, 'backbone.features.12': 112, 'backbone.features.16': 960}
+Concatenated features shape: torch.Size([1, 1136])
+Feature dimension for cache: 1136
+Warming up cache for gaussian_noise (severity 1)...
+Quality threshold: 0.05
+Using CORRUPTED validation data for warmup...
+Created corrupted dataset with 825 samples
+Corruption: gaussian_noise, Severity: 1
+Created corrupted validation dataset with 825 samples
+Target samples per class: 10
+Processing corrupted validation data...
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Sufficient samples collected for all classes
+
+=== WARMUP CACHE STATISTICS ===
+Cache populated: 120 positive, 600 negative features
+Avg per class: 10.0 pos, 50.0 neg
+Corrupted samples used: 205
+Clean samples used: 0
+High quality samples: 205
+Low quality rejected: 0
+Average quality - Pos: 0.758, Neg: 0.667
+Class distribution: [10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10]
+================================
+
+Running enhanced TTA evaluation...
+Concatenated features shape: torch.Size([64, 1136])
+Concatenated features shape: torch.Size([64, 1136])
+Concatenated features shape: torch.Size([64, 1136])
+Concatenated features shape: torch.Size([64, 1136])
+Concatenated features shape: torch.Size([64, 1136])
+Concatenated features shape: torch.Size([64, 1136])
+Concatenated features shape: torch.Size([64, 1136])
+Concatenated features shape: torch.Size([64, 1136])
+Concatenated features shape: torch.Size([64, 1136])
+Concatenated features shape: torch.Size([64, 1136])
+Concatenated features shape: torch.Size([64, 1136])
+Concatenated features shape: torch.Size([64, 1136])
+Concatenated features shape: torch.Size([54, 1136])
+
+=== DEBUG STATISTICS for gaussian_noise ===
+Total samples: 822
+TTA applied: 135 (16.4%)
+High confidence skipped: 687 (83.6%)
+Low quality rejected: 0 (0.0%)
+Feature extraction failures: 0
+Cache updates: 649
+Final cache: 765 pos, 600 neg
+Evaluating baseline on corrupted data...
+
+RESULTS:
+Enhanced TTA Top-1: 87.35%
+Baseline Top-1: 86.86%
+Delta: +0.49%
+Corruption: gaussian_noise, Severity: 1
+
+============================================================
+Testing gaussian_noise at severity 2
+============================================================
+Created corrupted dataset with 822 samples
+Corruption: gaussian_noise, Severity: 2
+Detected contrastive model with backbone
+Available feature layers: 17
+Auto-detected layer names: ['backbone.features.3', 'backbone.features.6', 'backbone.features.12', 'backbone.features.16']
+Successfully registered 4 hooks out of 4 requested
+Determined feature dimensions: {'backbone.features.3': 24, 'backbone.features.6': 40, 'backbone.features.12': 112, 'backbone.features.16': 960}
+Concatenated features shape: torch.Size([1, 1136])
+Feature dimension for cache: 1136
+Warming up cache for gaussian_noise (severity 2)...
+Quality threshold: 0.05
+Using CORRUPTED validation data for warmup...
+Created corrupted dataset with 825 samples
+Corruption: gaussian_noise, Severity: 2
+Created corrupted validation dataset with 825 samples
+Target samples per class: 10
+Processing corrupted validation data...
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Sufficient samples collected for all classes
+
+=== WARMUP CACHE STATISTICS ===
+Cache populated: 120 positive, 600 negative features
+Avg per class: 10.0 pos, 50.0 neg
+Corrupted samples used: 209
+Clean samples used: 0
+High quality samples: 209
+Low quality rejected: 1
+Average quality - Pos: 0.675, Neg: 0.589
+Class distribution: [10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10]
+================================
+
+Running enhanced TTA evaluation...
+Concatenated features shape: torch.Size([64, 1136])
+Concatenated features shape: torch.Size([64, 1136])
+Concatenated features shape: torch.Size([64, 1136])
+Concatenated features shape: torch.Size([64, 1136])
+Concatenated features shape: torch.Size([64, 1136])
+Concatenated features shape: torch.Size([64, 1136])
+Concatenated features shape: torch.Size([64, 1136])
+Concatenated features shape: torch.Size([64, 1136])
+Concatenated features shape: torch.Size([64, 1136])
+Concatenated features shape: torch.Size([64, 1136])
+Concatenated features shape: torch.Size([64, 1136])
+Concatenated features shape: torch.Size([64, 1136])
+Concatenated features shape: torch.Size([54, 1136])
+
+=== DEBUG STATISTICS for gaussian_noise ===
+Total samples: 822
+TTA applied: 146 (17.8%)
+High confidence skipped: 676 (82.2%)
+Low quality rejected: 0 (0.0%)
+Feature extraction failures: 0
+Cache updates: 626
+Final cache: 743 pos, 600 neg
+Evaluating baseline on corrupted data...
+
+RESULTS:
+Enhanced TTA Top-1: 86.74%
+Baseline Top-1: 87.10%
+Delta: -0.36%
+Corruption: gaussian_noise, Severity: 2
+
+============================================================
+Testing gaussian_noise at severity 3
+============================================================
+Created corrupted dataset with 822 samples
+Corruption: gaussian_noise, Severity: 3
+Detected contrastive model with backbone
+Available feature layers: 17
+Auto-detected layer names: ['backbone.features.3', 'backbone.features.6', 'backbone.features.12', 'backbone.features.16']
+Successfully registered 4 hooks out of 4 requested
+Determined feature dimensions: {'backbone.features.3': 24, 'backbone.features.6': 40, 'backbone.features.12': 112, 'backbone.features.16': 960}
+Concatenated features shape: torch.Size([1, 1136])
+Feature dimension for cache: 1136
+Warming up cache for gaussian_noise (severity 3)...
+Quality threshold: 0.05
+Using CORRUPTED validation data for warmup...
+Created corrupted dataset with 825 samples
+Corruption: gaussian_noise, Severity: 3
+Created corrupted validation dataset with 825 samples
+Target samples per class: 10
+Processing corrupted validation data...
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Sufficient samples collected for all classes
+
+=== WARMUP CACHE STATISTICS ===
+Cache populated: 120 positive, 600 negative features
+Avg per class: 10.0 pos, 50.0 neg
+Corrupted samples used: 210
+Clean samples used: 0
+High quality samples: 210
+Low quality rejected: 0
+Average quality - Pos: 0.585, Neg: 0.514
+Class distribution: [10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10]
+================================
+
+Running enhanced TTA evaluation...
+Concatenated features shape: torch.Size([64, 1136])
+Concatenated features shape: torch.Size([64, 1136])
+Concatenated features shape: torch.Size([64, 1136])
+Concatenated features shape: torch.Size([64, 1136])
+Concatenated features shape: torch.Size([64, 1136])
+Concatenated features shape: torch.Size([64, 1136])
+Concatenated features shape: torch.Size([64, 1136])
+Concatenated features shape: torch.Size([64, 1136])
+Concatenated features shape: torch.Size([64, 1136])
+Concatenated features shape: torch.Size([64, 1136])
+Concatenated features shape: torch.Size([64, 1136])
+Concatenated features shape: torch.Size([64, 1136])
+Concatenated features shape: torch.Size([54, 1136])
+
+=== DEBUG STATISTICS for gaussian_noise ===
+Total samples: 822
+TTA applied: 156 (19.0%)
+High confidence skipped: 665 (80.9%)
+Low quality rejected: 1 (0.1%)
+Feature extraction failures: 0
+Cache updates: 612
+Final cache: 727 pos, 600 neg
+Evaluating baseline on corrupted data...
+
+RESULTS:
+Enhanced TTA Top-1: 84.18%
+Baseline Top-1: 83.94%
+Delta: +0.24%
+Corruption: gaussian_noise, Severity: 3
+
+============================================================
+Testing gaussian_noise at severity 4
+============================================================
+Created corrupted dataset with 822 samples
+Corruption: gaussian_noise, Severity: 4
+Detected contrastive model with backbone
+Available feature layers: 17
+Auto-detected layer names: ['backbone.features.3', 'backbone.features.6', 'backbone.features.12', 'backbone.features.16']
+Successfully registered 4 hooks out of 4 requested
+Determined feature dimensions: {'backbone.features.3': 24, 'backbone.features.6': 40, 'backbone.features.12': 112, 'backbone.features.16': 960}
+Concatenated features shape: torch.Size([1, 1136])
+Feature dimension for cache: 1136
+Warming up cache for gaussian_noise (severity 4)...
+Quality threshold: 0.05
+Using CORRUPTED validation data for warmup...
+Created corrupted dataset with 825 samples
+Corruption: gaussian_noise, Severity: 4
+Created corrupted validation dataset with 825 samples
+Target samples per class: 10
+Processing corrupted validation data...
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Sufficient samples collected for all classes
+
+=== WARMUP CACHE STATISTICS ===
+Cache populated: 120 positive, 600 negative features
+Avg per class: 10.0 pos, 50.0 neg
+Corrupted samples used: 229
+Clean samples used: 0
+High quality samples: 229
+Low quality rejected: 1
+Average quality - Pos: 0.488, Neg: 0.428
+Class distribution: [10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10]
+================================
+
+Running enhanced TTA evaluation...
+Concatenated features shape: torch.Size([64, 1136])
+Concatenated features shape: torch.Size([64, 1136])
+Concatenated features shape: torch.Size([64, 1136])
+Concatenated features shape: torch.Size([64, 1136])
+Concatenated features shape: torch.Size([64, 1136])
+Concatenated features shape: torch.Size([64, 1136])
+Concatenated features shape: torch.Size([64, 1136])
+Concatenated features shape: torch.Size([64, 1136])
+Concatenated features shape: torch.Size([64, 1136])
+Concatenated features shape: torch.Size([64, 1136])
+Concatenated features shape: torch.Size([64, 1136])
+Concatenated features shape: torch.Size([64, 1136])
+Concatenated features shape: torch.Size([54, 1136])
+
+=== DEBUG STATISTICS for gaussian_noise ===
+Total samples: 822
+TTA applied: 174 (21.2%)
+High confidence skipped: 648 (78.8%)
+Low quality rejected: 0 (0.0%)
+Feature extraction failures: 0
+Cache updates: 583
+Final cache: 693 pos, 600 neg
+Evaluating baseline on corrupted data...
+
+RESULTS:
+Enhanced TTA Top-1: 83.09%
+Baseline Top-1: 83.45%
+Delta: -0.36%
+Corruption: gaussian_noise, Severity: 4
+
+============================================================
+Testing gaussian_noise at severity 5
+============================================================
+Created corrupted dataset with 822 samples
+Corruption: gaussian_noise, Severity: 5
+Detected contrastive model with backbone
+Available feature layers: 17
+Auto-detected layer names: ['backbone.features.3', 'backbone.features.6', 'backbone.features.12', 'backbone.features.16']
+Successfully registered 4 hooks out of 4 requested
+Determined feature dimensions: {'backbone.features.3': 24, 'backbone.features.6': 40, 'backbone.features.12': 112, 'backbone.features.16': 960}
+Concatenated features shape: torch.Size([1, 1136])
+Feature dimension for cache: 1136
+Warming up cache for gaussian_noise (severity 5)...
+Quality threshold: 0.05
+Using CORRUPTED validation data for warmup...
+Created corrupted dataset with 825 samples
+Corruption: gaussian_noise, Severity: 5
+Created corrupted validation dataset with 825 samples
+Target samples per class: 10
+Processing corrupted validation data...
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Sufficient samples collected for all classes
+
+=== WARMUP CACHE STATISTICS ===
+Cache populated: 120 positive, 600 negative features
+Avg per class: 10.0 pos, 50.0 neg
+Corrupted samples used: 236
+Clean samples used: 0
+High quality samples: 236
+Low quality rejected: 1
+Average quality - Pos: 0.412, Neg: 0.361
+Class distribution: [10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10]
+================================
+
+Running enhanced TTA evaluation...
+Concatenated features shape: torch.Size([64, 1136])
+Concatenated features shape: torch.Size([64, 1136])
+Concatenated features shape: torch.Size([64, 1136])
+Concatenated features shape: torch.Size([64, 1136])
+Concatenated features shape: torch.Size([64, 1136])
+Concatenated features shape: torch.Size([64, 1136])
+Concatenated features shape: torch.Size([64, 1136])
+Concatenated features shape: torch.Size([64, 1136])
+Concatenated features shape: torch.Size([64, 1136])
+Concatenated features shape: torch.Size([64, 1136])
+Concatenated features shape: torch.Size([64, 1136])
+Concatenated features shape: torch.Size([64, 1136])
+Concatenated features shape: torch.Size([54, 1136])
+
+=== DEBUG STATISTICS for gaussian_noise ===
+Total samples: 822
+TTA applied: 198 (24.1%)
+High confidence skipped: 624 (75.9%)
+Low quality rejected: 0 (0.0%)
+Feature extraction failures: 0
+Cache updates: 554
+Final cache: 664 pos, 600 neg
+Evaluating baseline on corrupted data...
+
+RESULTS:
+Enhanced TTA Top-1: 80.54%
+Baseline Top-1: 80.05%
+Delta: +0.49%
+Corruption: gaussian_noise, Severity: 5
+
+============================================================
+Testing motion_blur at severity 1
+============================================================
+Created corrupted dataset with 822 samples
+Corruption: motion_blur, Severity: 1
+Detected contrastive model with backbone
+Available feature layers: 17
+Auto-detected layer names: ['backbone.features.3', 'backbone.features.6', 'backbone.features.12', 'backbone.features.16']
+Successfully registered 4 hooks out of 4 requested
+Determined feature dimensions: {'backbone.features.3': 24, 'backbone.features.6': 40, 'backbone.features.12': 112, 'backbone.features.16': 960}
+Concatenated features shape: torch.Size([1, 1136])
+Feature dimension for cache: 1136
+Warming up cache for motion_blur (severity 1)...
+Quality threshold: 0.05
+Using CORRUPTED validation data for warmup...
+Created corrupted dataset with 825 samples
+Corruption: motion_blur, Severity: 1
+Created corrupted validation dataset with 825 samples
+Target samples per class: 10
+Processing corrupted validation data...
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Sufficient samples collected for all classes
+
+=== WARMUP CACHE STATISTICS ===
+Cache populated: 120 positive, 600 negative features
+Avg per class: 10.0 pos, 50.0 neg
+Corrupted samples used: 183
+Clean samples used: 0
+High quality samples: 183
+Low quality rejected: 0
+Average quality - Pos: 0.809, Neg: 0.710
+Class distribution: [10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10]
+================================
+
+Running enhanced TTA evaluation...
+Concatenated features shape: torch.Size([64, 1136])
+Concatenated features shape: torch.Size([64, 1136])
+Concatenated features shape: torch.Size([64, 1136])
+Concatenated features shape: torch.Size([64, 1136])
+Concatenated features shape: torch.Size([64, 1136])
+Concatenated features shape: torch.Size([64, 1136])
+Concatenated features shape: torch.Size([64, 1136])
+Concatenated features shape: torch.Size([64, 1136])
+Concatenated features shape: torch.Size([64, 1136])
+Concatenated features shape: torch.Size([64, 1136])
+Concatenated features shape: torch.Size([64, 1136])
+Concatenated features shape: torch.Size([64, 1136])
+Concatenated features shape: torch.Size([54, 1136])
+
+=== DEBUG STATISTICS for motion_blur ===
+Total samples: 822
+TTA applied: 112 (13.6%)
+High confidence skipped: 710 (86.4%)
+Low quality rejected: 0 (0.0%)
+Feature extraction failures: 0
+Cache updates: 669
+Final cache: 786 pos, 600 neg
+Evaluating baseline on corrupted data...
+
+RESULTS:
+Enhanced TTA Top-1: 88.81%
+Baseline Top-1: 89.05%
+Delta: -0.24%
+Corruption: motion_blur, Severity: 1
+
+============================================================
+Testing motion_blur at severity 2
+============================================================
+Created corrupted dataset with 822 samples
+Corruption: motion_blur, Severity: 2
+Detected contrastive model with backbone
+Available feature layers: 17
+Auto-detected layer names: ['backbone.features.3', 'backbone.features.6', 'backbone.features.12', 'backbone.features.16']
+Successfully registered 4 hooks out of 4 requested
+Determined feature dimensions: {'backbone.features.3': 24, 'backbone.features.6': 40, 'backbone.features.12': 112, 'backbone.features.16': 960}
+Concatenated features shape: torch.Size([1, 1136])
+Feature dimension for cache: 1136
+Warming up cache for motion_blur (severity 2)...
+Quality threshold: 0.05
+Using CORRUPTED validation data for warmup...
+Created corrupted dataset with 825 samples
+Corruption: motion_blur, Severity: 2
+Created corrupted validation dataset with 825 samples
+Target samples per class: 10
+Processing corrupted validation data...
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Sufficient samples collected for all classes
+
+=== WARMUP CACHE STATISTICS ===
+Cache populated: 120 positive, 600 negative features
+Avg per class: 10.0 pos, 50.0 neg
+Corrupted samples used: 191
+Clean samples used: 0
+High quality samples: 191
+Low quality rejected: 0
+Average quality - Pos: 0.767, Neg: 0.676
+Class distribution: [10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10]
+================================
+
+Running enhanced TTA evaluation...
+Concatenated features shape: torch.Size([64, 1136])
+Concatenated features shape: torch.Size([64, 1136])
+Concatenated features shape: torch.Size([64, 1136])
+Concatenated features shape: torch.Size([64, 1136])
+Concatenated features shape: torch.Size([64, 1136])
+Concatenated features shape: torch.Size([64, 1136])
+Concatenated features shape: torch.Size([64, 1136])
+Concatenated features shape: torch.Size([64, 1136])
+Concatenated features shape: torch.Size([64, 1136])
+Concatenated features shape: torch.Size([64, 1136])
+Concatenated features shape: torch.Size([64, 1136])
+Concatenated features shape: torch.Size([64, 1136])
+Concatenated features shape: torch.Size([54, 1136])
+
+=== DEBUG STATISTICS for motion_blur ===
+Total samples: 822
+TTA applied: 141 (17.2%)
+High confidence skipped: 681 (82.8%)
+Low quality rejected: 0 (0.0%)
+Feature extraction failures: 0
+Cache updates: 627
+Final cache: 744 pos, 600 neg
+Evaluating baseline on corrupted data...
+
+RESULTS:
+Enhanced TTA Top-1: 86.74%
+Baseline Top-1: 86.98%
+Delta: -0.24%
+Corruption: motion_blur, Severity: 2
+
+============================================================
+Testing motion_blur at severity 3
+============================================================
+Created corrupted dataset with 822 samples
+Corruption: motion_blur, Severity: 3
+Detected contrastive model with backbone
+Available feature layers: 17
+Auto-detected layer names: ['backbone.features.3', 'backbone.features.6', 'backbone.features.12', 'backbone.features.16']
+Successfully registered 4 hooks out of 4 requested
+Determined feature dimensions: {'backbone.features.3': 24, 'backbone.features.6': 40, 'backbone.features.12': 112, 'backbone.features.16': 960}
+Concatenated features shape: torch.Size([1, 1136])
+Feature dimension for cache: 1136
+Warming up cache for motion_blur (severity 3)...
+Quality threshold: 0.05
+Using CORRUPTED validation data for warmup...
+Created corrupted dataset with 825 samples
+Corruption: motion_blur, Severity: 3
+Created corrupted validation dataset with 825 samples
+Target samples per class: 10
+Processing corrupted validation data...
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Sufficient samples collected for all classes
+
+=== WARMUP CACHE STATISTICS ===
+Cache populated: 120 positive, 600 negative features
+Avg per class: 10.0 pos, 50.0 neg
+Corrupted samples used: 231
+Clean samples used: 0
+High quality samples: 231
+Low quality rejected: 0
+Average quality - Pos: 0.716, Neg: 0.627
+Class distribution: [10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10]
+================================
+
+Running enhanced TTA evaluation...
+Concatenated features shape: torch.Size([64, 1136])
+Concatenated features shape: torch.Size([64, 1136])
+Concatenated features shape: torch.Size([64, 1136])
+Concatenated features shape: torch.Size([64, 1136])
+Concatenated features shape: torch.Size([64, 1136])
+Concatenated features shape: torch.Size([64, 1136])
+Concatenated features shape: torch.Size([64, 1136])
+Concatenated features shape: torch.Size([64, 1136])
+Concatenated features shape: torch.Size([64, 1136])
+Concatenated features shape: torch.Size([64, 1136])
+Concatenated features shape: torch.Size([64, 1136])
+Concatenated features shape: torch.Size([64, 1136])
+Concatenated features shape: torch.Size([54, 1136])
+
+=== DEBUG STATISTICS for motion_blur ===
+Total samples: 822
+TTA applied: 185 (22.5%)
+High confidence skipped: 637 (77.5%)
+Low quality rejected: 0 (0.0%)
+Feature extraction failures: 0
+Cache updates: 595
+Final cache: 708 pos, 600 neg
+Evaluating baseline on corrupted data...
+
+RESULTS:
+Enhanced TTA Top-1: 83.82%
+Baseline Top-1: 83.45%
+Delta: +0.36%
+Corruption: motion_blur, Severity: 3
+
+============================================================
+Testing motion_blur at severity 4
+============================================================
+Created corrupted dataset with 822 samples
+Corruption: motion_blur, Severity: 4
+Detected contrastive model with backbone
+Available feature layers: 17
+Auto-detected layer names: ['backbone.features.3', 'backbone.features.6', 'backbone.features.12', 'backbone.features.16']
+Successfully registered 4 hooks out of 4 requested
+Determined feature dimensions: {'backbone.features.3': 24, 'backbone.features.6': 40, 'backbone.features.12': 112, 'backbone.features.16': 960}
+Concatenated features shape: torch.Size([1, 1136])
+Feature dimension for cache: 1136
+Warming up cache for motion_blur (severity 4)...
+Quality threshold: 0.05
+Using CORRUPTED validation data for warmup...
+Created corrupted dataset with 825 samples
+Corruption: motion_blur, Severity: 4
+Created corrupted validation dataset with 825 samples
+Target samples per class: 10
+Processing corrupted validation data...
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([25, 1136])
+Need more samples for 1 classes, using clean validation data...
+Concatenated features shape: torch.Size([64, 1136])
+Concatenated features shape: torch.Size([64, 1136])
+
+=== WARMUP CACHE STATISTICS ===
+Cache populated: 120 positive, 600 negative features
+Avg per class: 10.0 pos, 50.0 neg
+Corrupted samples used: 264
+Clean samples used: 4
+High quality samples: 264
+Low quality rejected: 0
+Average quality - Pos: 0.674, Neg: 0.593
+Class distribution: [10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10]
+================================
+
+Running enhanced TTA evaluation...
+Concatenated features shape: torch.Size([64, 1136])
+Concatenated features shape: torch.Size([64, 1136])
+Concatenated features shape: torch.Size([64, 1136])
+Concatenated features shape: torch.Size([64, 1136])
+Concatenated features shape: torch.Size([64, 1136])
+Concatenated features shape: torch.Size([64, 1136])
+Concatenated features shape: torch.Size([64, 1136])
+Concatenated features shape: torch.Size([64, 1136])
+Concatenated features shape: torch.Size([64, 1136])
+Concatenated features shape: torch.Size([64, 1136])
+Concatenated features shape: torch.Size([64, 1136])
+Concatenated features shape: torch.Size([64, 1136])
+Concatenated features shape: torch.Size([54, 1136])
+
+=== DEBUG STATISTICS for motion_blur ===
+Total samples: 822
+TTA applied: 231 (28.1%)
+High confidence skipped: 591 (71.9%)
+Low quality rejected: 0 (0.0%)
+Feature extraction failures: 0
+Cache updates: 527
+Final cache: 639 pos, 600 neg
+Evaluating baseline on corrupted data...
+
+RESULTS:
+Enhanced TTA Top-1: 79.56%
+Baseline Top-1: 79.32%
+Delta: +0.24%
+Corruption: motion_blur, Severity: 4
+
+============================================================
+Testing motion_blur at severity 5
+============================================================
+Created corrupted dataset with 822 samples
+Corruption: motion_blur, Severity: 5
+Detected contrastive model with backbone
+Available feature layers: 17
+Auto-detected layer names: ['backbone.features.3', 'backbone.features.6', 'backbone.features.12', 'backbone.features.16']
+Successfully registered 4 hooks out of 4 requested
+Determined feature dimensions: {'backbone.features.3': 24, 'backbone.features.6': 40, 'backbone.features.12': 112, 'backbone.features.16': 960}
+Concatenated features shape: torch.Size([1, 1136])
+Feature dimension for cache: 1136
+Warming up cache for motion_blur (severity 5)...
+Quality threshold: 0.05
+Using CORRUPTED validation data for warmup...
+Created corrupted dataset with 825 samples
+Corruption: motion_blur, Severity: 5
+Created corrupted validation dataset with 825 samples
+Target samples per class: 10
+Processing corrupted validation data...
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([25, 1136])
+Need more samples for 1 classes, using clean validation data...
+Concatenated features shape: torch.Size([64, 1136])
+Concatenated features shape: torch.Size([64, 1136])
+
+=== WARMUP CACHE STATISTICS ===
+Cache populated: 120 positive, 600 negative features
+Avg per class: 10.0 pos, 50.0 neg
+Corrupted samples used: 310
+Clean samples used: 5
+High quality samples: 310
+Low quality rejected: 0
+Average quality - Pos: 0.621, Neg: 0.539
+Class distribution: [10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10]
+================================
+
+Running enhanced TTA evaluation...
+Concatenated features shape: torch.Size([64, 1136])
+Concatenated features shape: torch.Size([64, 1136])
+Concatenated features shape: torch.Size([64, 1136])
+Concatenated features shape: torch.Size([64, 1136])
+Concatenated features shape: torch.Size([64, 1136])
+Concatenated features shape: torch.Size([64, 1136])
+Concatenated features shape: torch.Size([64, 1136])
+Concatenated features shape: torch.Size([64, 1136])
+Concatenated features shape: torch.Size([64, 1136])
+Concatenated features shape: torch.Size([64, 1136])
+Concatenated features shape: torch.Size([64, 1136])
+Concatenated features shape: torch.Size([64, 1136])
+Concatenated features shape: torch.Size([54, 1136])
+
+=== DEBUG STATISTICS for motion_blur ===
+Total samples: 822
+TTA applied: 289 (35.2%)
+High confidence skipped: 533 (64.8%)
+Low quality rejected: 0 (0.0%)
+Feature extraction failures: 0
+Cache updates: 456
+Final cache: 558 pos, 600 neg
+Evaluating baseline on corrupted data...
+
+RESULTS:
+Enhanced TTA Top-1: 72.99%
+Baseline Top-1: 72.99%
+Delta: +0.00%
+Corruption: motion_blur, Severity: 5
+
+============================================================
+Testing brightness at severity 1
+============================================================
+Created corrupted dataset with 822 samples
+Corruption: brightness, Severity: 1
+Detected contrastive model with backbone
+Available feature layers: 17
+Auto-detected layer names: ['backbone.features.3', 'backbone.features.6', 'backbone.features.12', 'backbone.features.16']
+Successfully registered 4 hooks out of 4 requested
+Determined feature dimensions: {'backbone.features.3': 24, 'backbone.features.6': 40, 'backbone.features.12': 112, 'backbone.features.16': 960}
+Concatenated features shape: torch.Size([1, 1136])
+Feature dimension for cache: 1136
+Warming up cache for brightness (severity 1)...
+Quality threshold: 0.05
+Using CORRUPTED validation data for warmup...
+Created corrupted dataset with 825 samples
+Corruption: brightness, Severity: 1
+Created corrupted validation dataset with 825 samples
+Target samples per class: 10
+Processing corrupted validation data...
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Sufficient samples collected for all classes
+
+=== WARMUP CACHE STATISTICS ===
+Cache populated: 120 positive, 600 negative features
+Avg per class: 10.0 pos, 50.0 neg
+Corrupted samples used: 186
+Clean samples used: 0
+High quality samples: 186
+Low quality rejected: 0
+Average quality - Pos: 0.875, Neg: 0.759
+Class distribution: [10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10]
+================================
+
+Running enhanced TTA evaluation...
+Concatenated features shape: torch.Size([64, 1136])
+Concatenated features shape: torch.Size([64, 1136])
+Concatenated features shape: torch.Size([64, 1136])
+Concatenated features shape: torch.Size([64, 1136])
+Concatenated features shape: torch.Size([64, 1136])
+Concatenated features shape: torch.Size([64, 1136])
+Concatenated features shape: torch.Size([64, 1136])
+Concatenated features shape: torch.Size([64, 1136])
+Concatenated features shape: torch.Size([64, 1136])
+Concatenated features shape: torch.Size([64, 1136])
+Concatenated features shape: torch.Size([64, 1136])
+Concatenated features shape: torch.Size([64, 1136])
+Concatenated features shape: torch.Size([54, 1136])
+
+=== DEBUG STATISTICS for brightness ===
+Total samples: 822
+TTA applied: 105 (12.8%)
+High confidence skipped: 717 (87.2%)
+Low quality rejected: 0 (0.0%)
+Feature extraction failures: 0
+Cache updates: 671
+Final cache: 789 pos, 600 neg
+Evaluating baseline on corrupted data...
+
+RESULTS:
+Enhanced TTA Top-1: 89.17%
+Baseline Top-1: 88.93%
+Delta: +0.24%
+Corruption: brightness, Severity: 1
+
+============================================================
+Testing brightness at severity 2
+============================================================
+Created corrupted dataset with 822 samples
+Corruption: brightness, Severity: 2
+Detected contrastive model with backbone
+Available feature layers: 17
+Auto-detected layer names: ['backbone.features.3', 'backbone.features.6', 'backbone.features.12', 'backbone.features.16']
+Successfully registered 4 hooks out of 4 requested
+Determined feature dimensions: {'backbone.features.3': 24, 'backbone.features.6': 40, 'backbone.features.12': 112, 'backbone.features.16': 960}
+Concatenated features shape: torch.Size([1, 1136])
+Feature dimension for cache: 1136
+Warming up cache for brightness (severity 2)...
+Quality threshold: 0.05
+Using CORRUPTED validation data for warmup...
+Created corrupted dataset with 825 samples
+Corruption: brightness, Severity: 2
+Created corrupted validation dataset with 825 samples
+Target samples per class: 10
+Processing corrupted validation data...
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Sufficient samples collected for all classes
+
+=== WARMUP CACHE STATISTICS ===
+Cache populated: 120 positive, 600 negative features
+Avg per class: 10.0 pos, 50.0 neg
+Corrupted samples used: 178
+Clean samples used: 0
+High quality samples: 178
+Low quality rejected: 0
+Average quality - Pos: 0.923, Neg: 0.787
+Class distribution: [10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10]
+================================
+
+Running enhanced TTA evaluation...
+Concatenated features shape: torch.Size([64, 1136])
+Concatenated features shape: torch.Size([64, 1136])
+Concatenated features shape: torch.Size([64, 1136])
+Concatenated features shape: torch.Size([64, 1136])
+Concatenated features shape: torch.Size([64, 1136])
+Concatenated features shape: torch.Size([64, 1136])
+Concatenated features shape: torch.Size([64, 1136])
+Concatenated features shape: torch.Size([64, 1136])
+Concatenated features shape: torch.Size([64, 1136])
+Concatenated features shape: torch.Size([64, 1136])
+Concatenated features shape: torch.Size([64, 1136])
+Concatenated features shape: torch.Size([64, 1136])
+Concatenated features shape: torch.Size([54, 1136])
+
+=== DEBUG STATISTICS for brightness ===
+Total samples: 822
+TTA applied: 105 (12.8%)
+High confidence skipped: 717 (87.2%)
+Low quality rejected: 0 (0.0%)
+Feature extraction failures: 0
+Cache updates: 665
+Final cache: 784 pos, 600 neg
+Evaluating baseline on corrupted data...
+
+RESULTS:
+Enhanced TTA Top-1: 89.05%
+Baseline Top-1: 88.93%
+Delta: +0.12%
+Corruption: brightness, Severity: 2
+
+============================================================
+Testing brightness at severity 3
+============================================================
+Created corrupted dataset with 822 samples
+Corruption: brightness, Severity: 3
+Detected contrastive model with backbone
+Available feature layers: 17
+Auto-detected layer names: ['backbone.features.3', 'backbone.features.6', 'backbone.features.12', 'backbone.features.16']
+Successfully registered 4 hooks out of 4 requested
+Determined feature dimensions: {'backbone.features.3': 24, 'backbone.features.6': 40, 'backbone.features.12': 112, 'backbone.features.16': 960}
+Concatenated features shape: torch.Size([1, 1136])
+Feature dimension for cache: 1136
+Warming up cache for brightness (severity 3)...
+Quality threshold: 0.05
+Using CORRUPTED validation data for warmup...
+Created corrupted dataset with 825 samples
+Corruption: brightness, Severity: 3
+Created corrupted validation dataset with 825 samples
+Target samples per class: 10
+Processing corrupted validation data...
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Sufficient samples collected for all classes
+
+=== WARMUP CACHE STATISTICS ===
+Cache populated: 120 positive, 600 negative features
+Avg per class: 10.0 pos, 50.0 neg
+Corrupted samples used: 184
+Clean samples used: 0
+High quality samples: 184
+Low quality rejected: 0
+Average quality - Pos: 0.946, Neg: 0.800
+Class distribution: [10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10]
+================================
+
+Running enhanced TTA evaluation...
+Concatenated features shape: torch.Size([64, 1136])
+Concatenated features shape: torch.Size([64, 1136])
+Concatenated features shape: torch.Size([64, 1136])
+Concatenated features shape: torch.Size([64, 1136])
+Concatenated features shape: torch.Size([64, 1136])
+Concatenated features shape: torch.Size([64, 1136])
+Concatenated features shape: torch.Size([64, 1136])
+Concatenated features shape: torch.Size([64, 1136])
+Concatenated features shape: torch.Size([64, 1136])
+Concatenated features shape: torch.Size([64, 1136])
+Concatenated features shape: torch.Size([64, 1136])
+Concatenated features shape: torch.Size([64, 1136])
+Concatenated features shape: torch.Size([54, 1136])
+
+=== DEBUG STATISTICS for brightness ===
+Total samples: 822
+TTA applied: 113 (13.7%)
+High confidence skipped: 709 (86.3%)
+Low quality rejected: 0 (0.0%)
+Feature extraction failures: 0
+Cache updates: 670
+Final cache: 789 pos, 600 neg
+Evaluating baseline on corrupted data...
+
+RESULTS:
+Enhanced TTA Top-1: 89.42%
+Baseline Top-1: 89.42%
+Delta: +0.00%
+Corruption: brightness, Severity: 3
+
+============================================================
+Testing brightness at severity 4
+============================================================
+Created corrupted dataset with 822 samples
+Corruption: brightness, Severity: 4
+Detected contrastive model with backbone
+Available feature layers: 17
+Auto-detected layer names: ['backbone.features.3', 'backbone.features.6', 'backbone.features.12', 'backbone.features.16']
+Successfully registered 4 hooks out of 4 requested
+Determined feature dimensions: {'backbone.features.3': 24, 'backbone.features.6': 40, 'backbone.features.12': 112, 'backbone.features.16': 960}
+Concatenated features shape: torch.Size([1, 1136])
+Feature dimension for cache: 1136
+Warming up cache for brightness (severity 4)...
+Quality threshold: 0.05
+Using CORRUPTED validation data for warmup...
+Created corrupted dataset with 825 samples
+Corruption: brightness, Severity: 4
+Created corrupted validation dataset with 825 samples
+Target samples per class: 10
+Processing corrupted validation data...
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Sufficient samples collected for all classes
+
+=== WARMUP CACHE STATISTICS ===
+Cache populated: 120 positive, 600 negative features
+Avg per class: 10.0 pos, 50.0 neg
+Corrupted samples used: 179
+Clean samples used: 0
+High quality samples: 179
+Low quality rejected: 0
+Average quality - Pos: 0.968, Neg: 0.801
+Class distribution: [10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10]
+================================
+
+Running enhanced TTA evaluation...
+Concatenated features shape: torch.Size([64, 1136])
+Concatenated features shape: torch.Size([64, 1136])
+Concatenated features shape: torch.Size([64, 1136])
+Concatenated features shape: torch.Size([64, 1136])
+Concatenated features shape: torch.Size([64, 1136])
+Concatenated features shape: torch.Size([64, 1136])
+Concatenated features shape: torch.Size([64, 1136])
+Concatenated features shape: torch.Size([64, 1136])
+Concatenated features shape: torch.Size([64, 1136])
+Concatenated features shape: torch.Size([64, 1136])
+Concatenated features shape: torch.Size([64, 1136])
+Concatenated features shape: torch.Size([64, 1136])
+Concatenated features shape: torch.Size([54, 1136])
+
+=== DEBUG STATISTICS for brightness ===
+Total samples: 822
+TTA applied: 118 (14.4%)
+High confidence skipped: 704 (85.6%)
+Low quality rejected: 0 (0.0%)
+Feature extraction failures: 0
+Cache updates: 668
+Final cache: 783 pos, 600 neg
+Evaluating baseline on corrupted data...
+
+RESULTS:
+Enhanced TTA Top-1: 88.56%
+Baseline Top-1: 87.96%
+Delta: +0.61%
+Corruption: brightness, Severity: 4
+
+============================================================
+Testing brightness at severity 5
+============================================================
+Created corrupted dataset with 822 samples
+Corruption: brightness, Severity: 5
+Detected contrastive model with backbone
+Available feature layers: 17
+Auto-detected layer names: ['backbone.features.3', 'backbone.features.6', 'backbone.features.12', 'backbone.features.16']
+Successfully registered 4 hooks out of 4 requested
+Determined feature dimensions: {'backbone.features.3': 24, 'backbone.features.6': 40, 'backbone.features.12': 112, 'backbone.features.16': 960}
+Concatenated features shape: torch.Size([1, 1136])
+Feature dimension for cache: 1136
+Warming up cache for brightness (severity 5)...
+Quality threshold: 0.05
+Using CORRUPTED validation data for warmup...
+Created corrupted dataset with 825 samples
+Corruption: brightness, Severity: 5
+Created corrupted validation dataset with 825 samples
+Target samples per class: 10
+Processing corrupted validation data...
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Sufficient samples collected for all classes
+
+=== WARMUP CACHE STATISTICS ===
+Cache populated: 120 positive, 600 negative features
+Avg per class: 10.0 pos, 50.0 neg
+Corrupted samples used: 203
+Clean samples used: 0
+High quality samples: 203
+Low quality rejected: 0
+Average quality - Pos: 0.965, Neg: 0.801
+Class distribution: [10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10]
+================================
+
+Running enhanced TTA evaluation...
+Concatenated features shape: torch.Size([64, 1136])
+Concatenated features shape: torch.Size([64, 1136])
+Concatenated features shape: torch.Size([64, 1136])
+Concatenated features shape: torch.Size([64, 1136])
+Concatenated features shape: torch.Size([64, 1136])
+Concatenated features shape: torch.Size([64, 1136])
+Concatenated features shape: torch.Size([64, 1136])
+Concatenated features shape: torch.Size([64, 1136])
+Concatenated features shape: torch.Size([64, 1136])
+Concatenated features shape: torch.Size([64, 1136])
+Concatenated features shape: torch.Size([64, 1136])
+Concatenated features shape: torch.Size([64, 1136])
+Concatenated features shape: torch.Size([54, 1136])
+
+=== DEBUG STATISTICS for brightness ===
+Total samples: 822
+TTA applied: 126 (15.3%)
+High confidence skipped: 696 (84.7%)
+Low quality rejected: 0 (0.0%)
+Feature extraction failures: 0
+Cache updates: 643
+Final cache: 759 pos, 600 neg
+Evaluating baseline on corrupted data...
+
+RESULTS:
+Enhanced TTA Top-1: 88.20%
+Baseline Top-1: 88.20%
+Delta: +0.00%
+Corruption: brightness, Severity: 5
+
+============================================================
+Testing contrast at severity 1
+============================================================
+Created corrupted dataset with 822 samples
+Corruption: contrast, Severity: 1
+Detected contrastive model with backbone
+Available feature layers: 17
+Auto-detected layer names: ['backbone.features.3', 'backbone.features.6', 'backbone.features.12', 'backbone.features.16']
+Successfully registered 4 hooks out of 4 requested
+Determined feature dimensions: {'backbone.features.3': 24, 'backbone.features.6': 40, 'backbone.features.12': 112, 'backbone.features.16': 960}
+Concatenated features shape: torch.Size([1, 1136])
+Feature dimension for cache: 1136
+Warming up cache for contrast (severity 1)...
+Quality threshold: 0.05
+Using CORRUPTED validation data for warmup...
+Created corrupted dataset with 825 samples
+Corruption: contrast, Severity: 1
+Created corrupted validation dataset with 825 samples
+Target samples per class: 10
+Processing corrupted validation data...
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Sufficient samples collected for all classes
+
+=== WARMUP CACHE STATISTICS ===
+Cache populated: 120 positive, 600 negative features
+Avg per class: 10.0 pos, 50.0 neg
+Corrupted samples used: 186
+Clean samples used: 0
+High quality samples: 186
+Low quality rejected: 0
+Average quality - Pos: 0.879, Neg: 0.766
+Class distribution: [10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10]
+================================
+
+Running enhanced TTA evaluation...
+Concatenated features shape: torch.Size([64, 1136])
+Concatenated features shape: torch.Size([64, 1136])
+Concatenated features shape: torch.Size([64, 1136])
+Concatenated features shape: torch.Size([64, 1136])
+Concatenated features shape: torch.Size([64, 1136])
+Concatenated features shape: torch.Size([64, 1136])
+Concatenated features shape: torch.Size([64, 1136])
+Concatenated features shape: torch.Size([64, 1136])
+Concatenated features shape: torch.Size([64, 1136])
+Concatenated features shape: torch.Size([64, 1136])
+Concatenated features shape: torch.Size([64, 1136])
+Concatenated features shape: torch.Size([64, 1136])
+Concatenated features shape: torch.Size([54, 1136])
+
+=== DEBUG STATISTICS for contrast ===
+Total samples: 822
+TTA applied: 118 (14.4%)
+High confidence skipped: 704 (85.6%)
+Low quality rejected: 0 (0.0%)
+Feature extraction failures: 0
+Cache updates: 652
+Final cache: 768 pos, 600 neg
+Evaluating baseline on corrupted data...
+
+RESULTS:
+Enhanced TTA Top-1: 88.32%
+Baseline Top-1: 88.32%
+Delta: +0.00%
+Corruption: contrast, Severity: 1
+
+============================================================
+Testing contrast at severity 2
+============================================================
+Created corrupted dataset with 822 samples
+Corruption: contrast, Severity: 2
+Detected contrastive model with backbone
+Available feature layers: 17
+Auto-detected layer names: ['backbone.features.3', 'backbone.features.6', 'backbone.features.12', 'backbone.features.16']
+Successfully registered 4 hooks out of 4 requested
+Determined feature dimensions: {'backbone.features.3': 24, 'backbone.features.6': 40, 'backbone.features.12': 112, 'backbone.features.16': 960}
+Concatenated features shape: torch.Size([1, 1136])
+Feature dimension for cache: 1136
+Warming up cache for contrast (severity 2)...
+Quality threshold: 0.05
+Using CORRUPTED validation data for warmup...
+Created corrupted dataset with 825 samples
+Corruption: contrast, Severity: 2
+Created corrupted validation dataset with 825 samples
+Target samples per class: 10
+Processing corrupted validation data...
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Sufficient samples collected for all classes
+
+=== WARMUP CACHE STATISTICS ===
+Cache populated: 120 positive, 600 negative features
+Avg per class: 10.0 pos, 50.0 neg
+Corrupted samples used: 178
+Clean samples used: 0
+High quality samples: 178
+Low quality rejected: 0
+Average quality - Pos: 0.912, Neg: 0.780
+Class distribution: [10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10]
+================================
+
+Running enhanced TTA evaluation...
+Concatenated features shape: torch.Size([64, 1136])
+Concatenated features shape: torch.Size([64, 1136])
+Concatenated features shape: torch.Size([64, 1136])
+Concatenated features shape: torch.Size([64, 1136])
+Concatenated features shape: torch.Size([64, 1136])
+Concatenated features shape: torch.Size([64, 1136])
+Concatenated features shape: torch.Size([64, 1136])
+Concatenated features shape: torch.Size([64, 1136])
+Concatenated features shape: torch.Size([64, 1136])
+Concatenated features shape: torch.Size([64, 1136])
+Concatenated features shape: torch.Size([64, 1136])
+Concatenated features shape: torch.Size([64, 1136])
+Concatenated features shape: torch.Size([54, 1136])
+
+=== DEBUG STATISTICS for contrast ===
+Total samples: 822
+TTA applied: 99 (12.0%)
+High confidence skipped: 723 (88.0%)
+Low quality rejected: 0 (0.0%)
+Feature extraction failures: 0
+Cache updates: 675
+Final cache: 794 pos, 600 neg
+Evaluating baseline on corrupted data...
+
+RESULTS:
+Enhanced TTA Top-1: 88.81%
+Baseline Top-1: 89.05%
+Delta: -0.24%
+Corruption: contrast, Severity: 2
+
+============================================================
+Testing contrast at severity 3
+============================================================
+Created corrupted dataset with 822 samples
+Corruption: contrast, Severity: 3
+Detected contrastive model with backbone
+Available feature layers: 17
+Auto-detected layer names: ['backbone.features.3', 'backbone.features.6', 'backbone.features.12', 'backbone.features.16']
+Successfully registered 4 hooks out of 4 requested
+Determined feature dimensions: {'backbone.features.3': 24, 'backbone.features.6': 40, 'backbone.features.12': 112, 'backbone.features.16': 960}
+Concatenated features shape: torch.Size([1, 1136])
+Feature dimension for cache: 1136
+Warming up cache for contrast (severity 3)...
+Quality threshold: 0.05
+Using CORRUPTED validation data for warmup...
+Created corrupted dataset with 825 samples
+Corruption: contrast, Severity: 3
+Created corrupted validation dataset with 825 samples
+Target samples per class: 10
+Processing corrupted validation data...
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Sufficient samples collected for all classes
+
+=== WARMUP CACHE STATISTICS ===
+Cache populated: 120 positive, 600 negative features
+Avg per class: 10.0 pos, 50.0 neg
+Corrupted samples used: 168
+Clean samples used: 0
+High quality samples: 168
+Low quality rejected: 0
+Average quality - Pos: 0.935, Neg: 0.790
+Class distribution: [10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10]
+================================
+
+Running enhanced TTA evaluation...
+Concatenated features shape: torch.Size([64, 1136])
+Concatenated features shape: torch.Size([64, 1136])
+Concatenated features shape: torch.Size([64, 1136])
+Concatenated features shape: torch.Size([64, 1136])
+Concatenated features shape: torch.Size([64, 1136])
+Concatenated features shape: torch.Size([64, 1136])
+Concatenated features shape: torch.Size([64, 1136])
+Concatenated features shape: torch.Size([64, 1136])
+Concatenated features shape: torch.Size([64, 1136])
+Concatenated features shape: torch.Size([64, 1136])
+Concatenated features shape: torch.Size([64, 1136])
+Concatenated features shape: torch.Size([64, 1136])
+Concatenated features shape: torch.Size([54, 1136])
+
+=== DEBUG STATISTICS for contrast ===
+Total samples: 822
+TTA applied: 111 (13.5%)
+High confidence skipped: 711 (86.5%)
+Low quality rejected: 0 (0.0%)
+Feature extraction failures: 0
+Cache updates: 670
+Final cache: 788 pos, 600 neg
+Evaluating baseline on corrupted data...
+
+RESULTS:
+Enhanced TTA Top-1: 89.42%
+Baseline Top-1: 89.42%
+Delta: +0.00%
+Corruption: contrast, Severity: 3
+
+============================================================
+Testing contrast at severity 4
+============================================================
+Created corrupted dataset with 822 samples
+Corruption: contrast, Severity: 4
+Detected contrastive model with backbone
+Available feature layers: 17
+Auto-detected layer names: ['backbone.features.3', 'backbone.features.6', 'backbone.features.12', 'backbone.features.16']
+Successfully registered 4 hooks out of 4 requested
+Determined feature dimensions: {'backbone.features.3': 24, 'backbone.features.6': 40, 'backbone.features.12': 112, 'backbone.features.16': 960}
+Concatenated features shape: torch.Size([1, 1136])
+Feature dimension for cache: 1136
+Warming up cache for contrast (severity 4)...
+Quality threshold: 0.05
+Using CORRUPTED validation data for warmup...
+Created corrupted dataset with 825 samples
+Corruption: contrast, Severity: 4
+Created corrupted validation dataset with 825 samples
+Target samples per class: 10
+Processing corrupted validation data...
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Sufficient samples collected for all classes
+
+=== WARMUP CACHE STATISTICS ===
+Cache populated: 120 positive, 600 negative features
+Avg per class: 10.0 pos, 50.0 neg
+Corrupted samples used: 171
+Clean samples used: 0
+High quality samples: 171
+Low quality rejected: 0
+Average quality - Pos: 0.965, Neg: 0.800
+Class distribution: [10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10]
+================================
+
+Running enhanced TTA evaluation...
+Concatenated features shape: torch.Size([64, 1136])
+Concatenated features shape: torch.Size([64, 1136])
+Concatenated features shape: torch.Size([64, 1136])
+Concatenated features shape: torch.Size([64, 1136])
+Concatenated features shape: torch.Size([64, 1136])
+Concatenated features shape: torch.Size([64, 1136])
+Concatenated features shape: torch.Size([64, 1136])
+Concatenated features shape: torch.Size([64, 1136])
+Concatenated features shape: torch.Size([64, 1136])
+Concatenated features shape: torch.Size([64, 1136])
+Concatenated features shape: torch.Size([64, 1136])
+Concatenated features shape: torch.Size([64, 1136])
+Concatenated features shape: torch.Size([54, 1136])
+
+=== DEBUG STATISTICS for contrast ===
+Total samples: 822
+TTA applied: 115 (14.0%)
+High confidence skipped: 706 (85.9%)
+Low quality rejected: 1 (0.1%)
+Feature extraction failures: 0
+Cache updates: 651
+Final cache: 769 pos, 600 neg
+Evaluating baseline on corrupted data...
+
+RESULTS:
+Enhanced TTA Top-1: 88.20%
+Baseline Top-1: 88.69%
+Delta: -0.49%
+Corruption: contrast, Severity: 4
+
+============================================================
+Testing contrast at severity 5
+============================================================
+Created corrupted dataset with 822 samples
+Corruption: contrast, Severity: 5
+Detected contrastive model with backbone
+Available feature layers: 17
+Auto-detected layer names: ['backbone.features.3', 'backbone.features.6', 'backbone.features.12', 'backbone.features.16']
+Successfully registered 4 hooks out of 4 requested
+Determined feature dimensions: {'backbone.features.3': 24, 'backbone.features.6': 40, 'backbone.features.12': 112, 'backbone.features.16': 960}
+Concatenated features shape: torch.Size([1, 1136])
+Feature dimension for cache: 1136
+Warming up cache for contrast (severity 5)...
+Quality threshold: 0.05
+Using CORRUPTED validation data for warmup...
+Created corrupted dataset with 825 samples
+Corruption: contrast, Severity: 5
+Created corrupted validation dataset with 825 samples
+Target samples per class: 10
+Processing corrupted validation data...
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Concatenated features shape: torch.Size([32, 1136])
+Sufficient samples collected for all classes
+
+=== WARMUP CACHE STATISTICS ===
+Cache populated: 120 positive, 600 negative features
+Avg per class: 10.0 pos, 50.0 neg
+Corrupted samples used: 189
+Clean samples used: 0
+High quality samples: 189
+Low quality rejected: 0
+Average quality - Pos: 0.963, Neg: 0.801
+Class distribution: [10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10]
+================================
+
+Running enhanced TTA evaluation...
+Concatenated features shape: torch.Size([64, 1136])
+Concatenated features shape: torch.Size([64, 1136])
+Concatenated features shape: torch.Size([64, 1136])
+Concatenated features shape: torch.Size([64, 1136])
+Concatenated features shape: torch.Size([64, 1136])
+Concatenated features shape: torch.Size([64, 1136])
+Concatenated features shape: torch.Size([64, 1136])
+Concatenated features shape: torch.Size([64, 1136])
+Concatenated features shape: torch.Size([64, 1136])
+Concatenated features shape: torch.Size([64, 1136])
+Concatenated features shape: torch.Size([64, 1136])
+Concatenated features shape: torch.Size([64, 1136])
+Concatenated features shape: torch.Size([54, 1136])
+
+=== DEBUG STATISTICS for contrast ===
+Total samples: 822
+TTA applied: 129 (15.7%)
+High confidence skipped: 693 (84.3%)
+Low quality rejected: 0 (0.0%)
+Feature extraction failures: 0
+Cache updates: 636
+Final cache: 748 pos, 600 neg
+Evaluating baseline on corrupted data...
+
+RESULTS:
+Enhanced TTA Top-1: 87.71%
+Baseline Top-1: 87.59%
+Delta: +0.12%
+Corruption: contrast, Severity: 5
+
+Results saved to: ./results/enhanced_tta_results.json
+
+============================================================
+ENHANCED TTA EVALUATION SUMMARY
+============================================================
+gaussian_noise  Sev1: TTA 87.35% | Base 86.86% | Δ +0.49%
+gaussian_noise  Sev2: TTA 86.74% | Base 87.10% | Δ -0.36%
+gaussian_noise  Sev3: TTA 84.18% | Base 83.94% | Δ +0.24%
+gaussian_noise  Sev4: TTA 83.09% | Base 83.45% | Δ -0.36%
+gaussian_noise  Sev5: TTA 80.54% | Base 80.05% | Δ +0.49%
+motion_blur     Sev1: TTA 88.81% | Base 89.05% | Δ -0.24%
+motion_blur     Sev2: TTA 86.74% | Base 86.98% | Δ -0.24%
+motion_blur     Sev3: TTA 83.82% | Base 83.45% | Δ +0.36%
+motion_blur     Sev4: TTA 79.56% | Base 79.32% | Δ +0.24%
+motion_blur     Sev5: TTA 72.99% | Base 72.99% | Δ +0.00%
+brightness      Sev1: TTA 89.17% | Base 88.93% | Δ +0.24%
+brightness      Sev2: TTA 89.05% | Base 88.93% | Δ +0.12%
+brightness      Sev3: TTA 89.42% | Base 89.42% | Δ +0.00%
+brightness      Sev4: TTA 88.56% | Base 87.96% | Δ +0.61%
+brightness      Sev5: TTA 88.20% | Base 88.20% | Δ +0.00%
+contrast        Sev1: TTA 88.32% | Base 88.32% | Δ +0.00%
+contrast        Sev2: TTA 88.81% | Base 89.05% | Δ -0.24%
+contrast        Sev3: TTA 89.42% | Base 89.42% | Δ +0.00%
+contrast        Sev4: TTA 88.20% | Base 88.69% | Δ -0.49%
+contrast        Sev5: TTA 87.71% | Base 87.59% | Δ +0.12%
+
+Average improvement: +0.05%
+
+Enhanced evaluation completed successfully!

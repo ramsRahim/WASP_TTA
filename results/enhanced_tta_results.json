@@ -1,0 +1,162 @@
+[
+  {
+    "corruption": "gaussian_noise",
+    "severity": 1,
+    "tta_acc": 87.34793187347933,
+    "baseline_acc": 86.86131386861314,
+    "delta": 0.48661800486618745,
+    "timestamp": "2025-09-04T11:25:45.348085"
+  },
+  {
+    "corruption": "gaussian_noise",
+    "severity": 2,
+    "tta_acc": 86.7396593673966,
+    "baseline_acc": 87.10462287104623,
+    "delta": -0.3649635036496335,
+    "timestamp": "2025-09-04T11:25:48.627905"
+  },
+  {
+    "corruption": "gaussian_noise",
+    "severity": 3,
+    "tta_acc": 84.18491484184915,
+    "baseline_acc": 83.94160583941606,
+    "delta": 0.24330900243309372,
+    "timestamp": "2025-09-04T11:25:51.943618"
+  },
+  {
+    "corruption": "gaussian_noise",
+    "severity": 4,
+    "tta_acc": 83.09002433090025,
+    "baseline_acc": 83.45498783454988,
+    "delta": -0.3649635036496335,
+    "timestamp": "2025-09-04T11:25:55.341288"
+  },
+  {
+    "corruption": "gaussian_noise",
+    "severity": 5,
+    "tta_acc": 80.5352798053528,
+    "baseline_acc": 80.04866180048661,
+    "delta": 0.48661800486618745,
+    "timestamp": "2025-09-04T11:25:58.756729"
+  },
+  {
+    "corruption": "motion_blur",
+    "severity": 1,
+    "tta_acc": 88.80778588807786,
+    "baseline_acc": 89.05109489051095,
+    "delta": -0.24330900243309372,
+    "timestamp": "2025-09-04T11:26:03.130546"
+  },
+  {
+    "corruption": "motion_blur",
+    "severity": 2,
+    "tta_acc": 86.7396593673966,
+    "baseline_acc": 86.98296836982968,
+    "delta": -0.2433090024330795,
+    "timestamp": "2025-09-04T11:26:07.911863"
+  },
+  {
+    "corruption": "motion_blur",
+    "severity": 3,
+    "tta_acc": 83.81995133819952,
+    "baseline_acc": 83.45498783454988,
+    "delta": 0.3649635036496335,
+    "timestamp": "2025-09-04T11:26:13.851934"
+  },
+  {
+    "corruption": "motion_blur",
+    "severity": 4,
+    "tta_acc": 79.56204379562044,
+    "baseline_acc": 79.31873479318735,
+    "delta": 0.24330900243309372,
+    "timestamp": "2025-09-04T11:26:20.568877"
+  },
+  {
+    "corruption": "motion_blur",
+    "severity": 5,
+    "tta_acc": 72.99270072992701,
+    "baseline_acc": 72.99270072992701,
+    "delta": 0.0,
+    "timestamp": "2025-09-04T11:26:27.585080"
+  },
+  {
+    "corruption": "brightness",
+    "severity": 1,
+    "tta_acc": 89.17274939172749,
+    "baseline_acc": 88.9294403892944,
+    "delta": 0.24330900243309372,
+    "timestamp": "2025-09-04T11:26:29.963889"
+  },
+  {
+    "corruption": "brightness",
+    "severity": 2,
+    "tta_acc": 89.05109489051095,
+    "baseline_acc": 88.9294403892944,
+    "delta": 0.12165450121655397,
+    "timestamp": "2025-09-04T11:26:32.304977"
+  },
+  {
+    "corruption": "brightness",
+    "severity": 3,
+    "tta_acc": 89.41605839416059,
+    "baseline_acc": 89.41605839416059,
+    "delta": 0.0,
+    "timestamp": "2025-09-04T11:26:34.711433"
+  },
+  {
+    "corruption": "brightness",
+    "severity": 4,
+    "tta_acc": 88.56447688564477,
+    "baseline_acc": 87.95620437956204,
+    "delta": 0.6082725060827272,
+    "timestamp": "2025-09-04T11:26:37.167042"
+  },
+  {
+    "corruption": "brightness",
+    "severity": 5,
+    "tta_acc": 88.19951338199513,
+    "baseline_acc": 88.19951338199513,
+    "delta": 0.0,
+    "timestamp": "2025-09-04T11:26:39.641612"
+  },
+  {
+    "corruption": "contrast",
+    "severity": 1,
+    "tta_acc": 88.32116788321169,
+    "baseline_acc": 88.32116788321167,
+    "delta": 1.4210854715202004e-14,
+    "timestamp": "2025-09-04T11:26:42.183934"
+  },
+  {
+    "corruption": "contrast",
+    "severity": 2,
+    "tta_acc": 88.80778588807786,
+    "baseline_acc": 89.05109489051095,
+    "delta": -0.24330900243309372,
+    "timestamp": "2025-09-04T11:26:44.540313"
+  },
+  {
+    "corruption": "contrast",
+    "severity": 3,
+    "tta_acc": 89.41605839416059,
+    "baseline_acc": 89.41605839416059,
+    "delta": 0.0,
+    "timestamp": "2025-09-04T11:26:46.927303"
+  },
+  {
+    "corruption": "contrast",
+    "severity": 4,
+    "tta_acc": 88.19951338199513,
+    "baseline_acc": 88.68613138686132,
+    "delta": -0.48661800486618745,
+    "timestamp": "2025-09-04T11:26:49.369173"
+  },
+  {
+    "corruption": "contrast",
+    "severity": 5,
+    "tta_acc": 87.71289537712896,
+    "baseline_acc": 87.5912408759124,
+    "delta": 0.12165450121655397,
+    "timestamp": "2025-09-04T11:26:51.992297"
+  }
+]
