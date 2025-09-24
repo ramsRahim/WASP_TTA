@@ -1,64 +1,56 @@
 #!/usr/bin/env python3
-# filepath: /home/rahim/exp/tta-pncache-tta/eval_corrupt.py
-import argparse, os, json, yaml, torch, torch.nn as nn, torch.nn.functional as F
-from torch.utils.data import DataLoader, Dataset
-from torchvision import transforms
+"""
+Fixed Corruption Evaluation Script
+Evaluates both vanilla and fine-tuned models on various weather corruptions
+"""
+
+import argparse
+import json
+import os
+import yaml
+import torch
+import torch.nn as nn
+import torch.nn.functional as F
+import numpy as np
+from torch.utils.data import DataLoader, Dataset, Subset
+from torchvision import datasets, transforms
 from torchvision.models import mobilenet_v3_large, MobileNet_V3_Large_Weights
 from torchvision.transforms import functional as TF
-from datetime import datetime
 from PIL import Image, ImageFilter, ImageEnhance, ImageDraw
 from tqdm import tqdm
-import numpy as np
-import pandas as pd
 import random
+from collections import defaultdict
 
 def parse_args():
-    parser = argparse.ArgumentParser(description="Evaluate corruption robustness: Vanilla vs Fine-tuned vs TTA")
-    parser.add_argument("--config", required=True, help="Path to config file")
-    parser.add_argument("--manifest_path", default="./checkpoints/split_manifest.json", help="Path to dataset split manifest")
-    parser.add_argument("--vanilla_checkpoint", help="Path to vanilla model checkpoint") 
-    parser.add_argument("--finetuned_checkpoint", required=True, help="Path to fine-tuned model checkpoint")
-    parser.add_argument("--output_csv", default="corruption_robustness_results.csv", help="Output CSV file")
-    parser.add_argument("--include_tta", action="store_true", help="Include TTA evaluation")
+    parser = argparse.ArgumentParser(description='Corruption Robustness Evaluation')
+    parser.add_argument('--config', required=True, help='Config file path')
+    parser.add_argument('--vanilla_checkpoint', required=True, help='Vanilla model checkpoint')
+    parser.add_argument('--finetuned_checkpoint', required=True, help='Fine-tuned model checkpoint')
+    parser.add_argument('--manifest_path', required=True, help='Split manifest path')
+    parser.add_argument('--output_dir', default='./eval_results', help='Output directory')
+    parser.add_argument('--batch_size', type=int, default=32, help='Batch size')
+    parser.add_argument('--num_workers', type=int, default=4, help='Number of workers')
     return parser.parse_args()
 
-def load_cfg(cfg_path):
-    """Load YAML configuration"""
-    with open(cfg_path, 'r') as f:
-        cfg = yaml.safe_load(f)
+def load_config(config_path):
+    """Load evaluation configuration"""
+    with open(config_path, 'r') as f:
+        config = yaml.safe_load(f)
     
-    cfg.setdefault("data", {})
-    cfg.setdefault("system", {})
-    cfg.setdefault("tta", {})
+    # Set defaults
+    config.setdefault('data', {})
+    config['data'].setdefault('img_size', 224)
+    config['data'].setdefault('resize', 256)
     
-    d = cfg["data"]
-    d.setdefault("img_size", 224)
-    d.setdefault("resize", 256)
-    d.setdefault("batch_size", 64)
-    d.setdefault("num_workers", 4)
+    config.setdefault('corruption', {})
+    config['corruption'].setdefault('severities', [1, 2, 3, 4, 5])
+    config['corruption'].setdefault('types', [
+        'gaussian_noise', 'motion_blur', 'brightness', 'contrast',
+        'rain', 'snow', 'frost', 'fog', 'low_light', 'high_light',
+        'shadow', 'glare', 'haze', 'mist'
+    ])
     
-    s = cfg["system"]
-    s.setdefault("device", "cuda" if torch.cuda.is_available() else "cpu")
-    if not s["device"]:
-        s["device"] = "cuda" if torch.cuda.is_available() else "cpu"
-    
-    # TTA defaults
-    t = cfg["tta"]
-    t.setdefault("alpha", 1.0)
-    t.setdefault("beta", 8.0)
-    t.setdefault("gamma", 6.0)
-    t.setdefault("temperature", 1.0)
-    t.setdefault("tau_pos", 0.80)
-    t.setdefault("tau_ref", 0.75)
-    t.setdefault("tau_neg", 0.20)
-    t.setdefault("pos_cache_size", 128)
-    t.setdefault("neg_cache_size", 64)
-    t.setdefault("sim_aggregate", "topk_mean")
-    t.setdefault("topk", 5)
-    t.setdefault("warmup_enabled", True)
-    t.setdefault("warmup_samples_per_class", 10)
-    
-    return cfg
+    return config
 
 def load_manifest(manifest_path):
     """Load dataset split manifest"""
@@ -66,111 +58,263 @@ def load_manifest(manifest_path):
         manifest = json.load(f)
     return manifest
 
-def build_transforms(img_size, resize):
-    """Build data transforms"""
-    return transforms.Compose([
-        transforms.Resize((resize, resize)),
-        transforms.CenterCrop(img_size),
-        transforms.ToTensor(),
-        transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
-    ])
+def inspect_checkpoint(checkpoint_path):
+    """Inspect checkpoint to determine model architecture"""
+    checkpoint = torch.load(checkpoint_path, map_location='cpu')
+    
+    if 'model_state_dict' in checkpoint:
+        state_dict = checkpoint['model_state_dict']
+    else:
+        state_dict = checkpoint
+    
+    print(f"🔍 Inspecting checkpoint: {checkpoint_path}")
+    
+    # Find classifier layers
+    classifier_layers = {}
+    contrastive_layers = {}
+    consistency_layers = {}
+    
+    for key in state_dict.keys():
+        if 'backbone.classifier' in key:
+            classifier_layers[key] = state_dict[key].shape
+        elif 'contrastive_head' in key:
+            contrastive_layers[key] = state_dict[key].shape
+        elif 'consistency_head' in key:
+            consistency_layers[key] = state_dict[key].shape
+    
+    print(f"  Classifier layers: {classifier_layers}")
+    print(f"  Contrastive layers: {contrastive_layers}")
+    print(f"  Consistency layers: {consistency_layers}")
+    
+    return classifier_layers, contrastive_layers, consistency_layers
 
-class MobileNetV3WithContrastive(nn.Module):
-    """MobileNetV3 with contrastive learning components"""
-    def __init__(self, num_classes, feature_dim=128, freeze_backbone=True, dropout_rate=0.3):
+class VanillaMobileNetV3(nn.Module):
+    """Vanilla MobileNetV3 model - matches train_vanilla.py"""
+    
+    def __init__(self, num_classes, dropout_rate=0.3):
         super().__init__()
         
+        # Load pretrained MobileNetV3
         weights = MobileNet_V3_Large_Weights.IMAGENET1K_V1
         self.backbone = mobilenet_v3_large(weights=weights)
         
+        # MobileNetV3-Large has 960 features before the final classifier
+        backbone_features = 960
+        
+        # Replace the classifier - matches train_vanilla.py
         self.backbone.classifier = nn.Sequential(
-            nn.Dropout(dropout_rate),
-            nn.Linear(960, num_classes)
+            nn.Linear(backbone_features, 512),
+            nn.Hardswish(inplace=True),
+            nn.Dropout(p=dropout_rate, inplace=True),
+            nn.Linear(512, num_classes)
         )
         
-        self.contrastive_head = nn.Sequential(
-            nn.Linear(960, 256),
-            nn.ReLU(),
-            nn.Linear(256, feature_dim)
-        )
-        
-        if freeze_backbone:
-            for param in self.backbone.features.parameters():
-                param.requires_grad = False
-    
-    def get_features(self, x):
-        features = self.backbone.features(x)
-        return self.backbone.avgpool(features).flatten(1)
-    
-    def get_contrastive_features(self, x):
-        backbone_features = self.get_features(x)
-        return F.normalize(self.contrastive_head(backbone_features), dim=1)
+        self.num_classes = num_classes
     
     def forward(self, x):
+        return self.backbone(x)
+
+class AdaptiveMobileNetV3(nn.Module):
+    """Adaptive MobileNetV3 that builds architecture from checkpoint"""
+    
+    def __init__(self, num_classes, classifier_layers, contrastive_layers=None, consistency_layers=None, dropout_rate=0.2):
+        super().__init__()
+        
+        # Load pretrained MobileNetV3
+        weights = MobileNet_V3_Large_Weights.IMAGENET1K_V1
+        self.backbone = mobilenet_v3_large(weights=weights)
+        
+        backbone_feature_dim = 960
+        
+        # Build classifier from checkpoint architecture
+        self._build_classifier(classifier_layers, dropout_rate)
+        
+        # Build contrastive head if present
+        if contrastive_layers:
+            self._build_contrastive_head(contrastive_layers, backbone_feature_dim, dropout_rate)
+        
+        # Build consistency head if present  
+        if consistency_layers:
+            self._build_consistency_head(consistency_layers, backbone_feature_dim)
+        
+        self.num_classes = num_classes
+    
+    def _build_classifier(self, classifier_layers, dropout_rate):
+        """Build classifier from checkpoint layer info"""
+        layers = []
+        
+        # Sort layers by index
+        sorted_layers = sorted(classifier_layers.items())
+        
+        for i, (layer_name, shape) in enumerate(sorted_layers):
+            if 'weight' in layer_name:
+                layer_idx = int(layer_name.split('.')[2])  # backbone.classifier.X.weight
+                
+                if layer_idx == 0:
+                    # First layer
+                    in_features, out_features = shape[1], shape[0]
+                    layers.append(nn.Linear(in_features, out_features))
+                    layers.append(nn.Hardswish(inplace=True))
+                    layers.append(nn.Dropout(p=dropout_rate, inplace=True))
+                else:
+                    # Find corresponding bias to get output features
+                    bias_key = layer_name.replace('weight', 'bias')
+                    if bias_key in classifier_layers:
+                        out_features = classifier_layers[bias_key][0]
+                        in_features = shape[1]
+                        layers.append(nn.Linear(in_features, out_features))
+                        
+                        # Add activation except for last layer
+                        if layer_idx < max([int(k.split('.')[2]) for k in classifier_layers.keys() if 'weight' in k]):
+                            layers.append(nn.Hardswish(inplace=True))
+                            layers.append(nn.Dropout(p=dropout_rate, inplace=True))
+        
+        self.backbone.classifier = nn.Sequential(*layers)
+        print(f"✅ Built classifier: {self.backbone.classifier}")
+    
+    def _build_contrastive_head(self, contrastive_layers, backbone_feature_dim, dropout_rate):
+        """Build contrastive head from checkpoint"""
+        layers = []
+        sorted_layers = sorted(contrastive_layers.items())
+        
+        for layer_name, shape in sorted_layers:
+            if 'weight' in layer_name:
+                layer_idx = int(layer_name.split('.')[1])  # contrastive_head.X.weight
+                
+                if layer_idx == 0:
+                    in_features, out_features = shape[1], shape[0]
+                    layers.append(nn.Linear(in_features, out_features))
+                    layers.append(nn.ReLU(inplace=True))
+                    layers.append(nn.Dropout(dropout_rate))
+                else:
+                    bias_key = layer_name.replace('weight', 'bias')
+                    if bias_key in contrastive_layers:
+                        out_features = contrastive_layers[bias_key][0]
+                        in_features = shape[1]
+                        layers.append(nn.Linear(in_features, out_features))
+        
+        self.contrastive_head = nn.Sequential(*layers)
+        print(f"✅ Built contrastive head: {self.contrastive_head}")
+    
+    def _build_consistency_head(self, consistency_layers, backbone_feature_dim):
+        """Build consistency head from checkpoint"""
+        layers = []
+        sorted_layers = sorted(consistency_layers.items())
+        
+        for layer_name, shape in sorted_layers:
+            if 'weight' in layer_name:
+                layer_idx = int(layer_name.split('.')[1])  # consistency_head.X.weight
+                
+                bias_key = layer_name.replace('weight', 'bias')
+                if bias_key in consistency_layers:
+                    out_features = consistency_layers[bias_key][0]
+                    in_features = shape[1]
+                    layers.append(nn.Linear(in_features, out_features))
+                    
+                    # Add ReLU except for last layer
+                    if layer_idx < max([int(k.split('.')[1]) for k in consistency_layers.keys() if 'weight' in k]):
+                        layers.append(nn.ReLU(inplace=True))
+        
+        self.consistency_head = nn.Sequential(*layers)
+        print(f"✅ Built consistency head: {self.consistency_head}")
+    
+    def get_features(self, x):
+        """Extract features before the final classifier"""
+        x = self.backbone.features(x)
+        x = self.backbone.avgpool(x)
+        x = torch.flatten(x, 1)
+        return x
+    
+    def get_contrastive_features(self, x):
+        """Get normalized contrastive features"""
+        if hasattr(self, 'contrastive_head'):
+            features = self.get_features(x)
+            contrastive_features = self.contrastive_head(features)
+            return F.normalize(contrastive_features, dim=1)
+        return None
+    
+    def get_consistency_features(self, x):
+        """Get consistency features"""
+        if hasattr(self, 'consistency_head'):
+            features = self.get_features(x)
+            return self.consistency_head(features)
+        return None
+    
+    def forward(self, x):
+        """Forward pass through the backbone classifier"""
         features = self.get_features(x)
         return self.backbone.classifier(features)
 
-class CorruptionDataset(Dataset):
-    """Dataset that applies specific corruption to images from manifest paths"""
-    def __init__(self, image_paths, class_to_idx, corruption_type, severity, transform=None):
+class WeatherCorruptionDataset(Dataset):
+    """Dataset with weather corruption augmentation"""
+    
+    def __init__(self, image_paths, labels, transform=None, corruption_type=None, severity=1):
         self.image_paths = image_paths
-        self.class_to_idx = class_to_idx
+        self.labels = labels
+        self.transform = transform
         self.corruption_type = corruption_type
         self.severity = severity
-        self.transform = transform
     
     def __len__(self):
         return len(self.image_paths)
     
     def __getitem__(self, idx):
+        # Load image
         img_path = self.image_paths[idx]
+        label = self.labels[idx]
         
-        # Extract class name from path
-        class_name = os.path.basename(os.path.dirname(img_path))
-        label = self.class_to_idx[class_name]
+        try:
+            img = Image.open(img_path).convert('RGB')
+        except Exception as e:
+            print(f"Error loading {img_path}: {e}")
+            # Return a black image as fallback
+            img = Image.new('RGB', (224, 224), (0, 0, 0))
         
-        img = Image.open(img_path).convert('RGB')
-        
-        # Apply corruption
-        if self.corruption_type != 'clean':
+        # Apply corruption if specified
+        if self.corruption_type and self.corruption_type != 'clean':
             img = self._apply_corruption(img, self.corruption_type, self.severity)
         
+        # Apply transforms
         if self.transform:
             img = self.transform(img)
         
-        return img, label, img_path
+        return img, label
     
     def _apply_corruption(self, img, corruption_type, severity):
-        """Apply corruption - matches train_finetune.py implementation"""
-        if corruption_type == 'gaussian_noise':
-            return self._add_gaussian_noise(img, severity)
-        elif corruption_type == 'motion_blur':
-            return self._add_motion_blur(img, severity)
-        elif corruption_type == 'brightness':
-            return self._adjust_brightness(img, severity)
-        elif corruption_type == 'contrast':
-            return self._adjust_contrast(img, severity)
-        elif corruption_type == 'rain':
-            return self._add_rain(img, severity)
-        elif corruption_type == 'snow':
-            return self._add_snow(img, severity)
-        elif corruption_type == 'frost':
-            return self._add_frost(img, severity)
-        elif corruption_type == 'fog':
-            return self._add_fog(img, severity)
-        elif corruption_type == 'low_light':
-            return self._adjust_low_light(img, severity)
-        elif corruption_type == 'high_light':
-            return self._adjust_high_light(img, severity)
-        elif corruption_type == 'shadow':
-            return self._add_shadow(img, severity)
-        elif corruption_type == 'glare':
-            return self._add_glare(img, severity)
-        elif corruption_type == 'haze':
-            return self._add_haze(img, severity)
-        elif corruption_type == 'mist':
-            return self._add_mist(img, severity)
-        else:
+        """Apply the specified corruption type and severity"""
+        try:
+            if corruption_type == 'gaussian_noise':
+                return self._add_gaussian_noise(img, severity)
+            elif corruption_type == 'motion_blur':
+                return self._add_motion_blur(img, severity)
+            elif corruption_type == 'brightness':
+                return self._adjust_brightness(img, severity)
+            elif corruption_type == 'contrast':
+                return self._adjust_contrast(img, severity)
+            elif corruption_type == 'rain':
+                return self._add_rain(img, severity)
+            elif corruption_type == 'snow':
+                return self._add_snow(img, severity)
+            elif corruption_type == 'frost':
+                return self._add_frost(img, severity)
+            elif corruption_type == 'fog':
+                return self._add_fog(img, severity)
+            elif corruption_type == 'low_light':
+                return self._adjust_low_light(img, severity)
+            elif corruption_type == 'high_light':
+                return self._adjust_high_light(img, severity)
+            elif corruption_type == 'shadow':
+                return self._add_shadow(img, severity)
+            elif corruption_type == 'glare':
+                return self._add_glare(img, severity)
+            elif corruption_type == 'haze':
+                return self._add_haze(img, severity)
+            elif corruption_type == 'mist':
+                return self._add_mist(img, severity)
+            else:
+                return img
+        except Exception as e:
+            print(f"Error applying corruption {corruption_type}: {e}")
             return img
     
     def _add_gaussian_noise(self, img, severity):
@@ -182,6 +326,8 @@ class CorruptionDataset(Dataset):
     
     def _add_motion_blur(self, img, severity):
         kernel_size = min(15, 3 + 2 * severity)
+        if kernel_size % 2 == 0:
+            kernel_size += 1
         sigma = max(0.5, severity * 0.5)
         return TF.gaussian_blur(img, kernel_size=kernel_size, sigma=sigma)
     
@@ -197,8 +343,8 @@ class CorruptionDataset(Dataset):
         img_copy = img.copy()
         draw = ImageDraw.Draw(img_copy)
         width, height = img.size
-        
         num_drops = int(30 * severity)
+        
         for _ in range(num_drops):
             x1 = random.randint(0, width)
             y1 = random.randint(0, height)
@@ -210,14 +356,15 @@ class CorruptionDataset(Dataset):
                 draw.line([(x1, y1), (x2, y2)], fill=(200, 200, 255), width=1)
             except:
                 pass
+        
         return img_copy
     
     def _add_snow(self, img, severity):
         img_copy = img.copy()
         draw = ImageDraw.Draw(img_copy)
         width, height = img.size
-        
         snow_density = int(50 * severity)
+        
         for _ in range(snow_density):
             x = random.randint(0, width)
             y = random.randint(0, height)
@@ -227,6 +374,7 @@ class CorruptionDataset(Dataset):
                 draw.ellipse([x-size, y-size, x+size, y+size], fill=(255, 255, 255))
             except:
                 pass
+        
         return img_copy
     
     def _add_frost(self, img, severity):
@@ -264,7 +412,6 @@ class CorruptionDataset(Dataset):
         img_copy = img.copy()
         draw = ImageDraw.Draw(img_copy)
         width, height = img.size
-        
         center_x = random.randint(width // 4, 3 * width // 4)
         center_y = random.randint(height // 4, 3 * height // 4)
         radius = 15 + severity * 8
@@ -276,6 +423,7 @@ class CorruptionDataset(Dataset):
                         fill=glare_color)
         except:
             pass
+        
         return img_copy
     
     def _add_haze(self, img, severity):
@@ -290,521 +438,292 @@ class CorruptionDataset(Dataset):
         alpha_mask = Image.new('L', img.size, mist_intensity)
         return Image.composite(mist_overlay, img, alpha_mask)
 
-class FeatureHook:
-    """Feature extraction hook for TTA"""
-    def __init__(self, layer):
-        self.layer = layer
-        self.z = None
-        self.hook_handle = layer.register_forward_hook(self._hook_fn)
+def load_model(checkpoint_path, num_classes, device='cuda'):
+    """Load model from checkpoint with adaptive architecture"""
     
-    def _hook_fn(self, module, input, output):
-        self.z = output
+    if not os.path.exists(checkpoint_path):
+        raise FileNotFoundError(f"Checkpoint not found: {checkpoint_path}")
     
-    def close(self):
-        self.hook_handle.remove()
-
-class PosNegCache:
-    """Positive/Negative cache for TTA"""
-    def __init__(self, num_classes, pos_size=128, neg_size=64):
-        from collections import deque
-        self.C = num_classes
-        self.positives = [deque(maxlen=pos_size) for _ in range(num_classes)]
-        self.negatives = [deque(maxlen=neg_size) for _ in range(num_classes)]
+    # Inspect checkpoint to determine architecture
+    classifier_layers, contrastive_layers, consistency_layers = inspect_checkpoint(checkpoint_path)
     
-    def add_positive(self, class_idx, feature):
-        self.positives[class_idx].append(feature.detach().cpu())
+    # Load checkpoint
+    checkpoint = torch.load(checkpoint_path, map_location=device)
     
-    def add_negative(self, class_idx, feature):
-        self.negatives[class_idx].append(feature.detach().cpu())
-    
-    @torch.no_grad()
-    def aggregate_similarity(self, z, agg="topk_mean", topk=5):
-        device = z.device
-        N = z.shape[0]
-        Spos = torch.zeros(N, self.C, device=device)
-        Sneg = torch.zeros(N, self.C, device=device)
-        
-        for c in range(self.C):
-            if len(self.positives[c]) > 0:
-                P = torch.stack(list(self.positives[c]), 0).to(device)
-                sims = z @ P.t()
-                if agg == "topk_mean":
-                    Spos[:, c] = sims.topk(min(topk, sims.shape[1]), dim=1)[0].mean(1)
-                else:
-                    Spos[:, c] = sims.mean(1)
-            
-            if len(self.negatives[c]) > 0:
-                Q = torch.stack(list(self.negatives[c]), 0).to(device)
-                sims = z @ Q.t()
-                if agg == "topk_mean":
-                    Sneg[:, c] = sims.topk(min(topk, sims.shape[1]), dim=1)[0].mean(1)
-                else:
-                    Sneg[:, c] = sims.mean(1)
-        
-        return Spos, Sneg
-
-def load_model(checkpoint_path, model_type, num_classes, feature_dim=256):
-    """Load model from checkpoint"""
-    if not checkpoint_path or not os.path.exists(checkpoint_path):
-        if model_type == 'vanilla':
-            # Create vanilla model without loading checkpoint
-            print(f"Creating vanilla MobileNet model (no checkpoint provided)")
-            weights = MobileNet_V3_Large_Weights.IMAGENET1K_V1
-            model = mobilenet_v3_large(weights=weights)
-            model.classifier = nn.Linear(960, num_classes)
-            # Initialize randomly for our classes
-            nn.init.xavier_uniform_(model.classifier.weight)
-            nn.init.zeros_(model.classifier.bias)
-            return model, []
-        else:
-            raise FileNotFoundError(f"Model checkpoint not found: {checkpoint_path}")
-    
-    # Load checkpoint first to determine model structure
-    checkpoint = torch.load(checkpoint_path, map_location='cpu')
-    
-    # Try to determine model type from checkpoint
-    if 'model_type' in checkpoint:
-        detected_type = checkpoint['model_type']
-        if 'contrastive' in detected_type.lower():
-            model_type = 'contrastive'
-    
-    # Create model based on type
-    if model_type == 'contrastive' or 'contrastive_head' in str(checkpoint.get('model_state_dict', {}).keys()):
-        model = MobileNetV3WithContrastive(
-            num_classes=num_classes, 
-            feature_dim=feature_dim, 
-            freeze_backbone=False
+    # Determine model type
+    if contrastive_layers or consistency_layers:
+        # Enhanced model with contrastive/consistency heads
+        model = AdaptiveMobileNetV3(
+            num_classes=num_classes,
+            classifier_layers=classifier_layers,
+            contrastive_layers=contrastive_layers,
+            consistency_layers=consistency_layers
         )
-        print(f"✓ Created contrastive model")
-    else:  # vanilla
-        weights = MobileNet_V3_Large_Weights.IMAGENET1K_V1
-        model = mobilenet_v3_large(weights=weights)
-        model.classifier = nn.Linear(960, num_classes)
-        print(f"✓ Created vanilla model")
+        model_type = 'adaptive_enhanced'
+    else:
+        # Vanilla model
+        model = VanillaMobileNetV3(
+            num_classes=num_classes,
+            dropout_rate=0.3
+        )
+        model_type = 'vanilla'
+    
+    model.to(device)
     
     # Load state dict
-    if 'model_state_dict' in checkpoint:
-        model.load_state_dict(checkpoint['model_state_dict'])
-    else:
-        model.load_state_dict(checkpoint)
+    try:
+        if 'model_state_dict' in checkpoint:
+            state_dict = checkpoint['model_state_dict']
+        else:
+            state_dict = checkpoint
+        
+        model.load_state_dict(state_dict, strict=True)
+        print(f"✅ Model loaded successfully from {checkpoint_path}")
+        
+    except Exception as e:
+        print(f"❌ Error loading checkpoint: {e}")
+        raise RuntimeError(f"Failed to load model: {e}")
     
-    print(f"✓ Loaded {model_type} model from {checkpoint_path}")
-    return model, checkpoint.get('class_names', [])
+    return model, model_type
 
 @torch.no_grad()
-def evaluate_model(model, dataloader, device, model_name="Model"):
-    """Evaluate model on dataloader"""
+def evaluate_model(model, dataloader, device):
+    """Evaluate model on a dataset"""
     model.eval()
     correct = 0
     total = 0
+    predictions = []
+    targets = []
     
-    for images, labels, _ in tqdm(dataloader, desc=f"Evaluating {model_name}"):
+    for images, labels in tqdm(dataloader, desc="Evaluating"):
         images, labels = images.to(device), labels.to(device)
-        outputs = model(images)
-        _, predicted = torch.max(outputs.data, 1)
-        total += labels.size(0)
-        correct += (predicted == labels).sum().item()
-    
-    accuracy = 100.0 * correct / total
-    return accuracy
-
-@torch.no_grad()
-def warmup_cache(model, hook, val_dl, device, tta_cfg, C):
-    """Warmup cache using validation data"""
-    cache = PosNegCache(C, tta_cfg["pos_cache_size"], tta_cfg["neg_cache_size"])
-    
-    for x, y, _ in tqdm(val_dl, desc="Warming up cache"):
-        x, y = x.to(device), y.to(device)
-        logits = model(x)
-        z = F.normalize(hook.z, dim=1)
-        probs = F.softmax(logits, dim=1)
-        conf, pred = probs.max(1)
         
-        # Add high-confidence correct predictions as positives
-        correct_mask = (pred == y) & (conf >= tta_cfg.get("warmup_tau_pos", 0.8))
-        for i in range(x.size(0)):
-            if correct_mask[i]:
-                cache.add_positive(int(y[i].item()), z[i])
-    
-    return cache
-
-@torch.no_grad()
-def evaluate_with_tta(model, hook, dataloader, device, tta_cfg, C, pre_warmed_cache=None):
-    """Evaluate model with TTA"""
-    if pre_warmed_cache is not None:
-        cache = pre_warmed_cache
-    else:
-        cache = PosNegCache(C, tta_cfg["pos_cache_size"], tta_cfg["neg_cache_size"])
-    
-    correct = 0
-    total = 0
-    
-    for x, y, _ in tqdm(dataloader, desc="Evaluating with TTA"):
-        x, y = x.to(device), y.to(device)
-        logits = model(x)
-        z = F.normalize(hook.z, dim=1)
-        
-        # Refine logits using cache
-        Spos, Sneg = cache.aggregate_similarity(z, tta_cfg["sim_aggregate"], tta_cfg["topk"])
-        refined_logits = tta_cfg["alpha"] * logits + tta_cfg["beta"] * Spos - tta_cfg["gamma"] * Sneg
-        
-        probs = F.softmax(refined_logits / tta_cfg["temperature"], dim=1)
-        conf, pred = probs.max(1)
-        
-        # Update cache
-        for i in range(x.size(0)):
-            if conf[i] >= tta_cfg["tau_pos"]:
-                cache.add_positive(int(pred[i].item()), z[i])
-            elif conf[i] <= tta_cfg["tau_neg"]:
-                cache.add_negative(int(pred[i].item()), z[i])
-        
-        correct += (pred == y).sum().item()
-        total += y.size(0)
-    
-    accuracy = 100.0 * correct / total
-    return accuracy
-
-def get_model_num_classes(model):
-    """Get number of classes from model"""
-    if hasattr(model, 'backbone'):
-        # Contrastive model
-        final_layer = model.backbone.classifier[-1]
-    else:
-        # Vanilla model  
-        final_layer = model.classifier
-    
-    if hasattr(final_layer, 'out_features'):
-        return final_layer.out_features
-    elif hasattr(final_layer, 'weight'):
-        return final_layer.weight.shape[0]
-    else:
-        return None
-
-def evaluate_single_corruption(models, val_paths, test_paths, class_to_idx, cfg, corruption_type, severity, device, include_tta=False):
-    """Evaluate all models on a single corruption"""
-    
-    # Create transform
-    transform = build_transforms(cfg["data"]["img_size"], cfg["data"]["resize"])
-    
-    # Create corrupted test dataset
-    corrupted_ds = CorruptionDataset(
-        test_paths, class_to_idx, corruption_type, severity, transform=transform
-    )
-    
-    corrupted_dl = DataLoader(
-        corrupted_ds, 
-        batch_size=cfg["data"]["batch_size"], 
-        shuffle=False, 
-        num_workers=cfg["data"]["num_workers"]
-    )
-    
-    results = {
-        'corruption': corruption_type,
-        'severity': severity,
-    }
-    
-    # Evaluate each model
-    for model_name, model in models.items():
-        if model is None:
+        try:
+            outputs = model(images)
+            _, predicted = torch.max(outputs, 1)
+            
+            correct += (predicted == labels).sum().item()
+            total += labels.size(0)
+            
+            predictions.extend(predicted.cpu().numpy())
+            targets.extend(labels.cpu().numpy())
+            
+        except Exception as e:
+            print(f"Error in evaluation batch: {e}")
             continue
-            
-        acc = evaluate_model(model, corrupted_dl, device, f"{model_name} ({corruption_type}_sev{severity})")
-        results[f'{model_name.lower()}_baseline'] = acc
-        
-        # TTA evaluation for fine-tuned model
-        if include_tta and model_name == 'Fine-tuned':
-            # Setup hook for TTA
-            final_linear = None
-            if hasattr(model, 'backbone'):
-                # Contrastive model
-                for m in reversed(model.backbone.classifier):
-                    if isinstance(m, nn.Linear):
-                        final_linear = m
-                        break
-            else:
-                # Vanilla model
-                for m in reversed(model.classifier):
-                    if isinstance(m, nn.Linear):
-                        final_linear = m
-                        break
-            
-            if final_linear is not None:
-                hook = FeatureHook(final_linear)
-                
-                # Get number of classes
-                num_classes = get_model_num_classes(model)
-                
-                # Create validation dataloader for warmup
-                val_ds = CorruptionDataset(val_paths, class_to_idx, 'clean', 0, transform=transform)
-                val_dl = DataLoader(val_ds, batch_size=cfg["data"]["batch_size"], shuffle=False, 
-                                   num_workers=cfg["data"]["num_workers"])
-                
-                # Warmup cache with clean validation data
-                cache = warmup_cache(model, hook, val_dl, device, cfg["tta"], num_classes)
-                
-                # Evaluate with TTA
-                tta_acc = evaluate_with_tta(model, hook, corrupted_dl, device, cfg["tta"], num_classes, cache)
-                results['fine-tuned_tta'] = tta_acc
-                results['tta_improvement'] = tta_acc - acc
-                
-                hook.close()
     
-    return results
+    accuracy = 100.0 * correct / total if total > 0 else 0.0
+    return accuracy, predictions, targets
 
-def print_comprehensive_table(all_results, include_tta=False):
-    """Print comprehensive results table"""
-    if not all_results:
-        print("No results to display!")
-        return
+def build_transforms(img_size, resize):
+    """Build evaluation transforms"""
+    return transforms.Compose([
+        transforms.Resize((resize, resize)),
+        transforms.CenterCrop(img_size),
+        transforms.ToTensor(),
+        transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
+    ])
+
+def create_corruption_results_table(results, corruption_types, severities):
+    """Create a formatted results table"""
+    print(f"\n{'='*100}")
+    print(f"{'CORRUPTION ROBUSTNESS EVALUATION RESULTS':^100}")
+    print(f"{'='*100}")
     
-    df = pd.DataFrame(all_results)
-    
-    print(f"\n{'='*120}")
-    print("COMPREHENSIVE CORRUPTION ROBUSTNESS EVALUATION")
-    print(f"{'='*120}")
-    
-    # Print detailed results
-    print(f"\n{'DETAILED RESULTS'}")
-    header = f"{'Corruption':<15} {'Sev':<4}"
-    if 'vanilla_baseline' in df.columns:
-        header += f" {'Vanilla':<8}"
-    if 'fine-tuned_baseline' in df.columns:
-        header += f" {'Fine-tuned':<11}"
-    if include_tta and 'fine-tuned_tta' in df.columns:
-        header += f" {'TTA':<8} {'TTA Δ':<8}"
-    if 'vanilla_baseline' in df.columns and 'fine-tuned_baseline' in df.columns:
-        header += f" {'FT Δ':<8}"
-    
+    # Header
+    header = f"{'Corruption':<15} {'Model':<10}"
+    for sev in severities:
+        header += f"{'Sev ' + str(sev):<8}"
+    header += f"{'mCE':<8} {'Improvement':<12}"
     print(header)
-    print("-" * 120)
+    print("-" * 100)
     
-    for _, row in df.iterrows():
-        corruption = row['corruption'][:12]
-        severity = int(row['severity'])
+    for corruption in corruption_types + ['clean']:
+        for model_name in ['Vanilla', 'Fine-tuned']:
+            if corruption in results and model_name in results[corruption]:
+                row = f"{corruption:<15} {model_name:<10}"
+                
+                # Add severity results
+                sev_results = results[corruption][model_name]
+                if isinstance(sev_results, dict):
+                    for sev in severities:
+                        if sev in sev_results:
+                            row += f"{sev_results[sev]:<8.1f}"
+                        else:
+                            row += f"{'N/A':<8}"
+                else:
+                    # Clean accuracy (single value)
+                    row += f"{sev_results:<8.1f}"
+                    for _ in severities[1:]:
+                        row += f"{'N/A':<8}"
+                
+                # Add mCE and improvement if available
+                if 'mCE' in results[corruption]:
+                    if model_name in results[corruption]['mCE']:
+                        row += f"{results[corruption]['mCE'][model_name]:<8.1f}"
+                    else:
+                        row += f"{'N/A':<8}"
+                else:
+                    row += f"{'N/A':<8}"
+                
+                if 'improvement' in results[corruption]:
+                    row += f"{results[corruption]['improvement']:<12.1f}"
+                else:
+                    row += f"{'N/A':<12}"
+                
+                print(row)
         
-        line = f"{corruption:<15} {severity:<4}"
-        
-        if 'vanilla_baseline' in row:
-            vanilla = row['vanilla_baseline']
-            line += f" {vanilla:<8.2f}"
-        
-        if 'fine-tuned_baseline' in row:
-            finetuned = row['fine-tuned_baseline']
-            line += f" {finetuned:<11.2f}"
-        
-        if include_tta and 'fine-tuned_tta' in row:
-            tta = row['fine-tuned_tta']
-            tta_delta = row.get('tta_improvement', 0)
-            line += f" {tta:<8.2f} {tta_delta:<8.2f}"
-        
-        if 'vanilla_baseline' in row and 'fine-tuned_baseline' in row:
-            ft_delta = row['fine-tuned_baseline'] - row['vanilla_baseline']
-            line += f" {ft_delta:<8.2f}"
-        
-        print(line)
+        if corruption != 'clean':
+            print("-" * 100)
+
+def save_results(results, output_dir):
+    """Save results to files"""
+    os.makedirs(output_dir, exist_ok=True)
     
-    # Calculate averages by corruption type
-    print(f"\n{'AVERAGE BY CORRUPTION TYPE'}")
-    print(header)
-    print("-" * 120)
+    # Save raw results
+    results_file = os.path.join(output_dir, 'corruption_evaluation_results.json')
+    with open(results_file, 'w') as f:
+        json.dump(results, f, indent=2)
     
-    corruption_summary = df.groupby('corruption').agg({
-        col: 'mean' for col in df.columns if col not in ['corruption', 'severity']
-    }).round(2)
-    
-    for corruption, row in corruption_summary.iterrows():
-        corruption_name = corruption[:12]
-        
-        line = f"{corruption_name:<15} {'Avg':<4}"
-        
-        if 'vanilla_baseline' in row:
-            vanilla = row['vanilla_baseline']
-            line += f" {vanilla:<8.2f}"
-        
-        if 'fine-tuned_baseline' in row:
-            finetuned = row['fine-tuned_baseline']
-            line += f" {finetuned:<11.2f}"
-        
-        if include_tta and 'fine-tuned_tta' in row:
-            tta = row['fine-tuned_tta']
-            tta_delta = row.get('tta_improvement', 0)
-            line += f" {tta:<8.2f} {tta_delta:<8.2f}"
-        
-        if 'vanilla_baseline' in row and 'fine-tuned_baseline' in row:
-            ft_delta = row['fine-tuned_baseline'] - row['vanilla_baseline']
-            line += f" {ft_delta:<8.2f}"
-        
-        print(line)
-    
-    # Overall averages
-    print("-" * 120)
-    line = f"{'OVERALL AVERAGE':<15} {'All':<4}"
-    
-    if 'vanilla_baseline' in df.columns:
-        overall_vanilla = df['vanilla_baseline'].mean()
-        line += f" {overall_vanilla:<8.2f}"
-    
-    if 'fine-tuned_baseline' in df.columns:
-        overall_finetuned = df['fine-tuned_baseline'].mean()
-        line += f" {overall_finetuned:<11.2f}"
-    
-    if include_tta and 'fine-tuned_tta' in df.columns:
-        overall_tta = df['fine-tuned_tta'].mean()
-        overall_tta_delta = df['tta_improvement'].mean()
-        line += f" {overall_tta:<8.2f} {overall_tta_delta:<8.2f}"
-    
-    if 'vanilla_baseline' in df.columns and 'fine-tuned_baseline' in df.columns:
-        overall_ft_delta = overall_finetuned - overall_vanilla
-        line += f" {overall_ft_delta:<8.2f}"
-    
-    print(line)
-    print(f"{'='*120}")
-    
-    # Summary insights
-    print(f"\nKEY INSIGHTS:")
-    if 'vanilla_baseline' in df.columns and 'fine-tuned_baseline' in df.columns:
-        overall_ft_improvement = overall_finetuned - overall_vanilla
-        print(f"• Fine-tuning improves robustness by {overall_ft_improvement:+.2f}% on average")
-    
-    if include_tta and 'fine-tuned_tta' in df.columns:
-        overall_tta_improvement = df['tta_improvement'].mean()
-        print(f"• TTA provides additional {overall_tta_improvement:+.2f}% improvement over fine-tuned model")
-        
-        if 'vanilla_baseline' in df.columns:
-            total_improvement = overall_tta - overall_vanilla
-            print(f"• Combined improvement over vanilla: {total_improvement:+.2f}%")
-    
-    # Best and worst corruptions
-    if len(corruption_summary) > 1 and 'fine-tuned_baseline' in corruption_summary.columns:
-        best_corruption = corruption_summary['fine-tuned_baseline'].idxmax()
-        worst_corruption = corruption_summary['fine-tuned_baseline'].idxmin()
-        
-        print(f"• Most robust to: {best_corruption} ({corruption_summary.loc[best_corruption, 'fine-tuned_baseline']:.2f}%)")
-        print(f"• Least robust to: {worst_corruption} ({corruption_summary.loc[worst_corruption, 'fine-tuned_baseline']:.2f}%)")
-        
-        if include_tta and 'tta_improvement' in corruption_summary.columns:
-            best_tta_corruption = corruption_summary['tta_improvement'].idxmax()
-            print(f"• Best TTA improvement: {best_tta_corruption} ({corruption_summary.loc[best_tta_corruption, 'tta_improvement']:+.2f}%)")
+    print(f"📁 Results saved to: {results_file}")
 
 def main():
     args = parse_args()
-    cfg = load_cfg(args.config)
-    device = torch.device(cfg["system"]["device"])
     
-    # Set random seed
-    torch.manual_seed(42)
-    random.seed(42)
-    np.random.seed(42)
-    
-    # Load manifest
+    # Load configuration and manifest
+    config = load_config(args.config)
     manifest = load_manifest(args.manifest_path)
     
-    # Extract dataset info from manifest
-    class_to_idx = manifest["class_to_idx"]
-    test_paths = manifest["splits"]["test"]
-    val_paths = manifest["splits"]["val"]
-    num_classes = manifest["dataset_info"]["num_classes"]
-    class_names = manifest["dataset_info"]["class_names"]
-    
     print(f"Using manifest: {args.manifest_path}")
+    
+    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+    
+    # Get dataset info
+    class_names = manifest['dataset_info']['class_names']
+    num_classes = len(class_names)
     print(f"Detected {num_classes} classes: {class_names}")
-    print(f"Test samples: {len(test_paths)}, Val samples: {len(val_paths)}")
+    
+    # Prepare test data
+    test_paths = manifest['splits']['test']
+    
+    # Create class to index mapping
+    class_to_idx = manifest['class_to_idx']
+    
+    # Extract labels from paths
+    def get_label_from_path(path):
+        class_name = os.path.basename(os.path.dirname(path))
+        return class_to_idx[class_name]
+    
+    test_labels = [get_label_from_path(path) for path in test_paths]
+    
+    print(f"Test samples: {len(test_paths)}")
+    
+    # Build transforms
+    transform = build_transforms(config['data']['img_size'], config['data']['resize'])
     
     # Load models
-    models = {}
+    print("📥 Loading models...")
+    
+    # Load vanilla model
+    vanilla_model, vanilla_type = load_model(
+        args.vanilla_checkpoint, 
+        num_classes, 
+        device=device
+    )
+    print(f"✓ Loaded vanilla model (type: {vanilla_type})")
     
     # Load fine-tuned model
-    finetuned_model, _ = load_model(
-        args.finetuned_checkpoint, 'contrastive', num_classes,
-        cfg.get("corruption_finetune", {}).get("feature_dim", 256)
+    finetuned_model, finetuned_type = load_model(
+        args.finetuned_checkpoint, 
+        num_classes, 
+        device=device
     )
-    finetuned_model.to(device)
-    models['Fine-tuned'] = finetuned_model
+    print(f"✓ Loaded fine-tuned model (type: {finetuned_type})")
     
-    # Load vanilla model if provided
-    if args.vanilla_checkpoint:
-        try:
-            vanilla_model, _ = load_model(args.vanilla_checkpoint, 'vanilla', num_classes)
-            vanilla_model.to(device)
-            models['Vanilla'] = vanilla_model
-        except Exception as e:
-            print(f"Warning: Could not load vanilla model: {e}")
-            print("Continuing with fine-tuned model only...")
+    # Evaluation
+    print("\n🧪 Starting corruption robustness evaluation...")
     
-    # Define all corruptions and severities to test
-    all_corruptions = [
-        'gaussian_noise', 'motion_blur', 'brightness', 'contrast',
-        'rain', 'snow', 'frost', 'fog', 'low_light', 'high_light', 
-        'shadow', 'glare', 'haze', 'mist'
-    ]
-    severities = [1, 2, 3, 4, 5]
+    results = {}
+    corruption_types = config['corruption']['types']
+    severities = config['corruption']['severities']
     
-    print(f"\nTesting {len(all_corruptions)} corruption types at {len(severities)} severity levels")
-    print(f"Corruptions: {all_corruptions}")
-    print(f"Severities: {severities}")
-    print(f"Total tests: {len(all_corruptions) * len(severities)}")
+    # Evaluate clean performance first
+    print("\n📊 Evaluating clean performance...")
+    clean_dataset = WeatherCorruptionDataset(
+        test_paths, test_labels, transform=transform, 
+        corruption_type='clean', severity=0
+    )
+    clean_loader = DataLoader(
+        clean_dataset, batch_size=args.batch_size, 
+        shuffle=False, num_workers=args.num_workers
+    )
     
-    # Run evaluation
-    all_results = []
-    total_tests = len(all_corruptions) * len(severities)
-    current_test = 0
+    vanilla_clean_acc, _, _ = evaluate_model(vanilla_model, clean_loader, device)
+    finetuned_clean_acc, _, _ = evaluate_model(finetuned_model, clean_loader, device)
     
-    for corruption in all_corruptions:
+    results['clean'] = {
+        'Vanilla': vanilla_clean_acc,
+        'Fine-tuned': finetuned_clean_acc
+    }
+    
+    print(f"Clean Accuracy - Vanilla: {vanilla_clean_acc:.2f}%, Fine-tuned: {finetuned_clean_acc:.2f}%")
+    
+    # Evaluate corruptions
+    for corruption in corruption_types:
+        print(f"\n🌩️  Evaluating {corruption}...")
+        
+        results[corruption] = {
+            'Vanilla': {},
+            'Fine-tuned': {}
+        }
+        
         for severity in severities:
-            current_test += 1
-            print(f"\n[{current_test}/{total_tests}] Evaluating {corruption} at severity {severity}")
+            print(f"  Severity {severity}...")
             
-            try:
-                results = evaluate_single_corruption(
-                    models, val_paths, test_paths, class_to_idx, cfg, 
-                    corruption, severity, device, args.include_tta
-                )
-                all_results.append(results)
-                
-                # Print immediate results
-                result_str = ""
-                if 'fine-tuned_baseline' in results:
-                    result_str += f"  Fine-tuned: {results['fine-tuned_baseline']:.2f}%"
-                if 'vanilla_baseline' in results:
-                    vanilla_acc = results['vanilla_baseline']
-                    ft_delta = results['fine-tuned_baseline'] - vanilla_acc
-                    result_str += f" | Vanilla: {vanilla_acc:.2f}% | FT Δ: {ft_delta:+.2f}%"
-                if args.include_tta and 'fine-tuned_tta' in results:
-                    tta_acc = results['fine-tuned_tta']
-                    tta_delta = results['tta_improvement']
-                    result_str += f" | TTA: {tta_acc:.2f}% | TTA Δ: {tta_delta:+.2f}%"
-                
-                print(result_str)
-                
-            except Exception as e:
-                print(f"  ERROR: {e}")
-                import traceback
-                traceback.print_exc()
-                continue
+            # Create corrupted dataset
+            corrupted_dataset = WeatherCorruptionDataset(
+                test_paths, test_labels, transform=transform,
+                corruption_type=corruption, severity=severity
+            )
+            corrupted_loader = DataLoader(
+                corrupted_dataset, batch_size=args.batch_size,
+                shuffle=False, num_workers=args.num_workers
+            )
+            
+            # Evaluate both models
+            vanilla_acc, _, _ = evaluate_model(vanilla_model, corrupted_loader, device)
+            finetuned_acc, _, _ = evaluate_model(finetuned_model, corrupted_loader, device)
+            
+            results[corruption]['Vanilla'][severity] = vanilla_acc
+            results[corruption]['Fine-tuned'][severity] = finetuned_acc
+            
+            print(f"    Vanilla: {vanilla_acc:.2f}%, Fine-tuned: {finetuned_acc:.2f}%")
+        
+        # Calculate improvement
+        avg_vanilla = np.mean(list(results[corruption]['Vanilla'].values()))
+        avg_finetuned = np.mean(list(results[corruption]['Fine-tuned'].values()))
+        improvement = avg_finetuned - avg_vanilla
+        results[corruption]['improvement'] = improvement
+        
+        print(f"  Average improvement: {improvement:.2f}%")
     
-    # Print comprehensive results table
-    if all_results:
-        print_comprehensive_table(all_results, args.include_tta)
+    # Display and save results
+    create_corruption_results_table(results, corruption_types, severities)
+    save_results(results, args.output_dir)
+    
+    # Summary statistics
+    print(f"\n📈 SUMMARY:")
+    total_improvements = [results[c]['improvement'] for c in corruption_types if 'improvement' in results[c]]
+    if total_improvements:
+        avg_improvement = np.mean(total_improvements)
         
-        # Save to CSV
-        df = pd.DataFrame(all_results)
-        df['timestamp'] = datetime.now().isoformat()
-        df.to_csv(args.output_csv, index=False)
-        print(f"\nDetailed results saved to: {args.output_csv}")
-        
-        # Print model info
-        print(f"\nMODEL INFORMATION:")
-        print(f"Manifest: {args.manifest_path}")
-        print(f"Fine-tuned model: {args.finetuned_checkpoint}")
-        if args.vanilla_checkpoint:
-            print(f"Vanilla model: {args.vanilla_checkpoint}")
-        print(f"Total corruptions tested: {len(set(r['corruption'] for r in all_results))}")
-        print(f"Total combinations tested: {len(all_results)}")
-        
+        print(f"Average improvement across all corruptions: {avg_improvement:.2f}%")
+        print(f"Best improvement: {max(total_improvements):.2f}%")
+        print(f"Worst improvement: {min(total_improvements):.2f}%")
     else:
-        print("No results generated!")
+        print("No improvement data available")
     
-    print(f"\nEvaluation completed!")
+    print(f"\n✅ Evaluation completed! Results saved to {args.output_dir}")
 
 if __name__ == "__main__":
     main()

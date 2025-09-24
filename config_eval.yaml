@@ -1,31 +1,22 @@
+# Evaluation configuration
 data:
-  root: "/home/rahim/exp/Data/Agriculture_pest_dataset"  # Update this to your actual data path
   img_size: 224
   resize: 256
-  batch_size: 32
-  num_workers: 2
-  train_frac: 0.7
-  val_frac: 0.15
-  test_frac: 0.15
-  balance_seed: 42
 
-system:
-  device: "cuda"
-  seed: 42
-
-tta:
-  alpha: 1.0
-  beta: 8.0
-  gamma: 6.0
-  temperature: 1.0
-  tau_pos: 0.80
-  tau_ref: 0.75
-  tau_neg: 0.20
-  pos_cache_size: 128
-  neg_cache_size: 64
-  sim_aggregate: "topk_mean"
-  topk: 5
-  warmup_enabled: true
-  warmup_samples_per_class: 10
-  warmup_tau_pos: 0.90
-  warmup_tau_neg: 0.15
+corruption:
+  severities: [1, 2, 3, 4, 5]
+  types:
+    - gaussian_noise
+    - motion_blur
+    - brightness
+    - contrast
+    - rain
+    - snow
+    - frost
+    - fog
+    - low_light
+    - high_light
+    - shadow
+    - glare
+    - haze
+    - mist

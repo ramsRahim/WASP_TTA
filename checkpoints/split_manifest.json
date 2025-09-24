@@ -1,7 +1,5 @@
 {
   "dataset_info": {
-    "root": "/home/rahim/exp/Data/Agriculture_pest_dataset",
-    "total_samples": 5994,
     "num_classes": 13,
     "class_names": [
       "ants",
@@ -18,22 +16,7 @@
       "wasp",
       "weevil"
     ],
-    "created_at": "2025-09-16T13:25:21.893822"
-  },
-  "class_to_idx": {
-    "ants": 0,
-    "bees": 1,
-    "beetle": 2,
-    "catterpillar": 3,
-    "earthworms": 4,
-    "earwig": 5,
-    "grasshopper": 6,
-    "moth": 7,
-    "slug": 8,
-    "snail": 9,
-    "spotted_lanternfly": 10,
-    "wasp": 11,
-    "weevil": 12
+    "total_samples": 5994
   },
   "splits": {
     "train": [
@@ -6037,14 +6020,27 @@
       "/home/rahim/exp/Data/Agriculture_pest_dataset/beetle/beetle (200).jpg"
     ]
   },
+  "class_to_idx": {
+    "ants": 0,
+    "bees": 1,
+    "beetle": 2,
+    "catterpillar": 3,
+    "earthworms": 4,
+    "earwig": 5,
+    "grasshopper": 6,
+    "moth": 7,
+    "slug": 8,
+    "snail": 9,
+    "spotted_lanternfly": 10,
+    "wasp": 11,
+    "weevil": 12
+  },
   "split_config": {
     "train_frac": 0.7,
     "val_frac": 0.15,
     "test_frac": 0.15,
-    "balance_seed": 42
+    "seed": 42
   },
-  "corruption_checkpoint": "./checkpoints/mobilenetv3_13classes_enhanced_weather_contrastive.pt",
-  "corruption_finetuned": true,
-  "weather_corruptions_enabled": true,
-  "best_corruption_acc": 84.3159065628476
+  "created_timestamp": "2025-09-17T09:51:34.968696",
+  "data_root": "/home/rahim/exp/Data/Agriculture_pest_dataset"
 }
